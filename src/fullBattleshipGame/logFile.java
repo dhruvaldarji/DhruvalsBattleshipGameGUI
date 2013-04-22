@@ -7,10 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class logFile {
-	static String defaultFileName = "DhruvalsBShipGameError.log";
-	static FileOutputStream fileOutPutStream;
-	static PrintWriter printWriter;
-	static String newLine = System.getProperty("line.separator");
+	private static String defaultFileName = "DhruvalsBShipGameError.log";
+	private static FileOutputStream fileOutPutStream;
+	private static PrintWriter printWriter;
+	private static String newLine = System.getProperty("line.separator");
 	
 	// Get the time that the error ocurred
 	static String getTime(){

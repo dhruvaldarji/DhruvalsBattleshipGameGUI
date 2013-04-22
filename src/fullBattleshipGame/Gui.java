@@ -53,8 +53,10 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		addWindowListener(this);
 		setSize(500,155);
 		
-		while (start == true){
-			StartGame();
+		while (start != true){
+			if(start == true){
+				StartGame();
+			}
 		}
 	}
 	

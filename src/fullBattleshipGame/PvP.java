@@ -96,7 +96,7 @@ public class PvP {
 					// search serverFleet for ship matching newShip
 					if (searchFleet(hShip)==false){
 						fleet.add(hShip);
-						board.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.yellow);
+						ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.yellow);
 						}
 					}
 				}
@@ -105,7 +105,7 @@ public class PvP {
 					vShip = new largeBattleship(lShip.getX(),lShip.getY()+s);
 					// search serverFleet for ship matching newShip
 					if (searchFleet(vShip)==false){
-						board.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.yellow);
+						ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.yellow);
 						fleet.add(vShip);
 					}
 				}
@@ -172,11 +172,11 @@ public class PvP {
 			if (fleet.get(i).getX() == serverCoor.getX()
 					&& 
 					fleet.get(i).getY() == serverCoor.getY()){
-				board.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.red);
+				ocean.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.red);
 				fleet.remove(i);
 				return"h";
 				}
-			else {	board.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.blue);	}
+			else {	ocean.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.blue);	}
 			}
 		return "m";
 		}
@@ -196,8 +196,8 @@ public class PvP {
 	
 	// Update opponent's board.
 	void updateOppBoard(String oppStatus, Torpedo coor) {
-		if (oppStatus.equalsIgnoreCase("H")){	board.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.red);	}
-		else if (oppStatus.equalsIgnoreCase("M")) {	board.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.blue);	}
+		if (oppStatus.equalsIgnoreCase("H")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.red);	}
+		else if (oppStatus.equalsIgnoreCase("M")) {	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.blue);	}
 		else {	/* if oppStatus  is L do Nothing*/	}
 	}
 
