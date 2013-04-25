@@ -23,7 +23,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	JPanel mainPanel, gamePanel, choicePanel, hostPanel, joinPanel,startPanel;
 	JTextField port, server;
 	String s = "localhost";
-	int p = 13000;
+	int p = 0;
 	static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
 	int hostOrClient = 0; // if 1 then host , if 2 then client
 	static Container c;
@@ -136,7 +136,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		hostPanel.add(panel);
 		hostPanel.add(hostJoin);
 		
-		port.requestFocus();
 	}
 	
 	void joinScreen(){
@@ -162,7 +161,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		joinPanel.add(panel);
 		joinPanel.add(hostJoin);
 		
-		port.requestFocus();
 	}
 	
 	void startScreen(){
@@ -177,6 +175,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
+				
 		String msg = arg0.getActionCommand();
 		if(msg.equalsIgnoreCase("Battle")){
 			getContentPane().removeAll();
@@ -221,11 +220,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			System.out.println(msg);
 		}
 		else if (msg.equalsIgnoreCase("Host")){
+			hostOrClient = 1;
 			getContentPane().removeAll();
 			getContentPane().add(hostPanel);
 			System.out.println(msg);
 		}
 		else if (msg.equalsIgnoreCase("Join")){
+			hostOrClient = 2;
 			getContentPane().removeAll();
 			getContentPane().add(joinPanel);
 			System.out.println(msg);
@@ -250,10 +251,9 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		else if (msg.equalsIgnoreCase("Join a Game")){
 			System.out.println(msg);
 			hostOrClient = 2;
-			System.out.println(msg);
 			if(!server.getText().equalsIgnoreCase("")) 
 				s= server.getText();
-			if(!port.getText().equalsIgnoreCase("")) 
+			if(!(port.getText().equalsIgnoreCase(""))) 
 				p = Integer.parseInt(port.getText());
 			server.setText("");
 			port.setText("");
@@ -306,15 +306,18 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		switch (gameType){
 		case 1:
 			ComvCom g1 = new ComvCom();
-			g1.run(s,p);
+			g1.run(s, p);
+			start = false;
 			break;
 		case 2:
 			PvCom g2 = new PvCom();
-			g2.run(s,p);
+			g2.run(s, p);
+			start = false;
 			break;
 		case 3:
 			PvP g3 = new PvP();
-			g3.run(s,p);
+			g3.run(s, p);
+			start = false;
 			break;
 		}
 	}

@@ -19,8 +19,7 @@ public class ComvCom {
 	private boolean shipFound = false, right = false, down = false, left = false, up = false;
 	private int dir = 0, rightCount = 0, downCount = 0, leftCount = 0, upCount = 0;
 	private Torpedo specialShot = null;
-	@SuppressWarnings("unused")
-	private int hostClient = 0; // host or client
+	private int hostClient = 0; // host == 0 or client == 1
 	
 	public ComvCom() throws Throwable{
 		init();
@@ -44,10 +43,14 @@ public class ComvCom {
 		createShipsRand(); // computer
 		if (h == null){
 			hostClient  = 0;
+			socket = new Connection(null, p);
 		}
-		else hostClient = 1;
-		socket = new Connection(h, p);
-		
+		else{
+			hostClient = 1;
+			socket = new Connection(h, p);
+			
+		}
+		System.out.println(h+", "+p);
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
 		battle();
@@ -126,24 +129,26 @@ public class ComvCom {
 	private void battle() throws Throwable {
 		Torpedo coor = new Torpedo();
 		Torpedo oppCoor = new Torpedo();
-		String oppStatus = "m";
-		String myStatus = "H";
+		String oppStatus = "M";
+		String myStatus = "M";
 		
-		// if host then listen
-		if (hostClient == 0){
-			// check opponent coordinate
-			oppCoor = socket.getMessage(); 
-			
-			updateOppBoard(oppStatus, coor);
-			
-			//check for hit/miss
-			if ((checkIfShot(oppCoor)==false)&&(!oppStatus.equalsIgnoreCase("L"))){	
-				myStatus = checkFleet(oppCoor);
-				// check if all ships have been destroyed
-				if(getFleet().isEmpty()==true) myStatus = "L";
-			}
-		}
 		try {
+			// if host then listen
+			if (hostClient == 0){
+				// check opponent coordinate
+				oppCoor = socket.getMessage(); 
+				
+				updateOppBoard(oppStatus, coor);
+				
+				//check for hit/miss
+				if ((checkIfShot(oppCoor)==false)){	
+					myStatus = checkFleet(oppCoor);
+					// check if all ships have been destroyed
+					if(getFleet().isEmpty()==true)
+						myStatus = "L";
+				}
+			}
+				
 			do{
 				// finds the next Shot
 				coor = findNextShot(coor, oppStatus);
@@ -169,8 +174,9 @@ public class ComvCom {
 					if(getFleet().isEmpty()==true) myStatus = "L";
 				}
 								
-				}while((!oppStatus.equalsIgnoreCase("L")) || (myShotList.size()!=10000) || (oppShotList.size()!=10000));
+				}while(!(oppStatus.equalsIgnoreCase("L")) || (myShotList.size()!=10000) || (oppShotList.size()!=10000));
 			} catch (Throwable e) {}	
+		
 		if (getFleet().isEmpty()==true || (myShotList.size()==10000)){	System.out.println("\nYou Lose. Shame on you!");	}
 		else {	System.out.println("\nYou're a Winner!");	}
 		}
@@ -220,6 +226,7 @@ public class ComvCom {
 	
 	// Update opponent's board.
 	private void updateOppBoard(String oppStatus, Torpedo coor) throws InterruptedException {
+		
 		if (oppStatus.equalsIgnoreCase("H")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);	}
 		else if (oppStatus.equalsIgnoreCase("M")) {	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.BLUE);	}
 		else if (oppStatus.equalsIgnoreCase("L")){
