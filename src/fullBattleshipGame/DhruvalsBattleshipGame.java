@@ -14,8 +14,8 @@ public class DhruvalsBattleshipGame {
 //			c.run("10.220.3.87", 13001);
 			c.run(null, 13000);
 			} catch (Exception e) {
-				logFile.logMessage("There was a problem, game has exited. Error at: "+e.getMessage());
-				 System.err.println("Error: "+e.getMessage());	System.exit(0);	} 
+				logFile.logMessage("Error at: "+e.getMessage());
+				 System.err.println("Error: "+e.getMessage());	} 
 		finally{
 			System.out.println("GoodBye");
 			System.exit(0);

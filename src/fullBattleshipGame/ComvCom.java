@@ -22,13 +22,11 @@ public class ComvCom {
 	private static ArrayList<ship> fleet = new ArrayList<ship>(); // -----ArrayList
 	private ArrayList<Torpedo> oppShotList = new ArrayList<Torpedo>(); // -----ArrayList
 	private ArrayList<Torpedo> myShotList = new ArrayList<Torpedo>(); // -----ArrayList
-	private ArrayList<Torpedo> parityList = new ArrayList<Torpedo>(); // -----ArrayList
-
 	
 	// The following deal with shooting and focused shots against the opponent.
 	private Torpedo coor = new Torpedo("M",0,0), oppCoor = new Torpedo(), specialShot = new Torpedo();
 	private String oppStatus = "M", myStatus = "M";
-	private boolean shipFound = false, right = false, down = false, left = false, up = false;
+	private boolean shipFound = false, right = false, down = false, left = false, up = false, battling=false;
 	private int timesShotSpecially = 0, rightCount = 0, downCount = 0, leftCount = 0, upCount = 0;
 	
 	public ComvCom() throws Throwable{
@@ -43,12 +41,9 @@ public class ComvCom {
 		myShotList.clear();
 		// Empty opponents shot list
 		oppShotList.clear();
-		// Empty Parity Shotlist
-		parityList.clear();
 		// Game is ready to play, show the board
 		ocean.setVisible(true);
 		// Print my game information ip and port
-		//System.out.println("Game ready on "+socket.getMyConnectionInfo()+".");
 		}
 	
 	// Run the game
@@ -76,13 +71,26 @@ public class ComvCom {
 		battle();
 //		System.out.println("opp: "+myShotList.toString()); // view opponents shotlist
 //		System.out.println("me: "+oppShotList.toString()); // view my shotlist
-//		System.out.println("Shots Made: "+myShotList.size()); // check how many shots i made
 		close();
 		}
 	
 	//Close the game
 	private void close() throws Throwable {
-		// wait 3 seconds and then close;
+		// Determine winner
+		battling = false;
+		if(myStatus.equalsIgnoreCase("L")){	
+			System.out.println("You lost, all of your ships have been sunk!");
+			System.out.println("You lost in "+oppShotList.size()+" shots.");
+		}
+		else if(oppStatus.equalsIgnoreCase("L")){	
+			System.out.println("You Win, all of the opponents ships have been sunk!");
+			System.out.println("You took "+myShotList.size()+" shots.");
+		}
+		else if(myShotList.size()>10000){	System.out.println("You lost, you shot 10,000 times!");	}
+		else if(oppShotList.size()>10000){	System.out.println("You Win, opponent shot 10,000 times!");	}
+		else System.out.println("Could not determine winner.");
+		
+		// Close the socket connection
 		try {	socket.close();	Thread.sleep(3000);	}	catch (Throwable e) {}
 	}
 	
@@ -125,7 +133,7 @@ public class ComvCom {
 					// search serverFleet for ship matching newShip
 					if (searchFleet(hShip)==false){
 						getFleet().add(hShip);
-						ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.yellow);
+						ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.YELLOW);
 						}
 					}
 				}
@@ -139,7 +147,7 @@ public class ComvCom {
 					vShip = new largeBattleship(x,y+s);
 					// search serverFleet for ship matching newShip
 					if (searchFleet(vShip)==false){
-						ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.yellow);
+						ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.YELLOW);
 						getFleet().add(vShip);
 					}
 				}
@@ -150,22 +158,20 @@ public class ComvCom {
 	// Battle stage: Choose where to shoot, shoot there , get opponent shot, 
 	// do calculations, and continue in loop until win or lose.
 	private void battle() throws Throwable {	
+		battling = true;
+		
 		// if host then listen
 		if (hostClient == 0){	getShotAt();	}
 		
 		do{
 			shoot();
+			if(myStatus.equalsIgnoreCase("L")||myShotList.size()==10000){	close();	}
 ////////////////////////////// ~ ~ ~ ~ ~ Player : Opponent Separation ~ ~ ~ ~ ~ //////////////////////////////
 			getShotAt();
+			if(oppStatus.equalsIgnoreCase("L")||oppShotList.size()==10000){	close();	}
 			
 			// While opponents status is not an L, i haven't shot 10,000 times and the opponent hasn't shot 10,000 times.
-			}while(!(oppStatus.equalsIgnoreCase("L")) || (myShotList.size()!=10000) || (oppShotList.size()!=10000));
-		
-		// If the fleet is empty or i have shot 10,000 times, I Lose
-		if (getFleet().isEmpty()==true || (myShotList.size()==10000)){	System.out.println("\nYou Lose. Shame on you!");	}
-		
-		// Else I Win
-		else {	System.out.println("\nYou're a Winner!");	}
+			}while(battling);
 	}
 
 	private void shoot() throws IOException {
@@ -176,12 +182,8 @@ public class ComvCom {
 		// Set my status to the calculations from the opponents last shot.
 		coor.setStatus(myStatus);
 		
-		// Send coordinate as long as the opponent has not sent an L
-		// Which means they have probably ended the connection.
-		 if (!(oppCoor.getStatus().equalsIgnoreCase("L"))){
-			// If opponent status is L, then don't shoot.
-			socket.sendMessage(coor.toString());
-		}
+		// Send coordinate 
+		socket.sendMessage(coor.toString());
 	}
 	
 	private void getShotAt() throws ClassNotFoundException, IOException, InterruptedException {
@@ -192,22 +194,20 @@ public class ComvCom {
 		// Add opponents shot to opponent's shot list. 
 		oppShotList.add(oppCoor);
 		
+		oppStatus = oppCoor.getStatus();
 		// Update the opponent's board
 		updateOppBoard(oppStatus, coor);
 		
 		// Check if the opponent has shot the same place twice
-		if (checkIfShot(oppCoor)==true){
+		if (checkIfOppShot(oppCoor)==true){
 			// Return  miss if the opponent has shot the same place twice
 			myStatus = "M";
 		}
 	
-		// As long as the opponents status is not a L
 		// Check if the shot was a hit, miss, or lose and make that my next status.
-		if (!(oppStatus.equalsIgnoreCase("L"))){	
-			myStatus = checkFleet(oppCoor);
-			// check if all ships have been destroyed
-			if(getFleet().isEmpty()==true) myStatus = "L";
-		}
+		myStatus = checkFleet(oppCoor);
+		// check if all ships have been destroyed
+		if(getFleet().isEmpty()==true) myStatus = "L";
 	}
 
 	// Check if ship exist in fleet already
@@ -226,47 +226,45 @@ public class ComvCom {
 	private String checkFleet(Torpedo oppCoor){
 	
 	// Check if coordinate is a ship
-	for (int i = 0; i<getFleet().size(); i++){
-		if (getFleet().get(i).getX() == oppCoor.getX()
-				&& 
-				getFleet().get(i).getY() == oppCoor.getY()){
+		if (ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].getBackground()==Color.YELLOW){
 			// Ships is in fleet, change to hit
 			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.RED);
-			getFleet().remove(i);
+			removeFromFleet(oppCoor.getX(),oppCoor.getY());
 			return"H";
-			}
+		}
 		else {	
 			// Shot missed, change ocean to blue
 			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);	
-			}
 		}
 		return "M";
 	}
 		
+	private void removeFromFleet(int x, int y) {
+		for (int i = 0; i<fleet.size(); i++){
+			if (fleet.get(i).getX() == x
+					&& 
+					fleet.get(i).getY() == y){
+				fleet.remove(i);
+			}
+		}
+	}
+
 	// Check if the coordinate has already been shot by me
 	private boolean checkIfIShot(Torpedo coor){
 		// Check if coordinate has already been shot
-		for (int i = 0; i<myShotList.size(); i++){
-			if (myShotList.get(i).getX() == coor.getX()
-					&& 
-					myShotList.get(i).getY() == coor.getY()){
-				return true; // Coordinate already shot
-				}
+		if(ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.CYAN){
+			return false; // Coordinate already shot
 			}
-		return false; // Coordinate not shot
+		return true; // Coordinate not shot
 	}	
 	
 	// Check if the coordinate has already been shot by the opponent
-	private boolean checkIfShot(Torpedo coor){
+	private boolean checkIfOppShot(Torpedo coor){
 		// Check if coordinate has already been shot
-		for (int i = 0; i<oppShotList.size(); i++){
-			if (oppShotList.get(i).getX() == coor.getX()
-					&& 
-					oppShotList.get(i).getY() == coor.getY()){
-				return true; // Coordinate already shot
-				}
+		if(ocean.getMyButton()[coor.getX()][coor.getY()].getBackground()==Color.CYAN){
+			return false; // Coordinate already shot
 			}
-		return false; // Coordinate not shot
+		return true; // Coordinate not shot
 	}
 	
 	// Update opponent's board.
@@ -282,7 +280,7 @@ public class ComvCom {
 		
 		// For magicShots
 		// If I get a hit and shipFound == false or if shipFound == true do magicShots
-		if ((status.equalsIgnoreCase("H") && (shipFound == false))||(shipFound == true)){	coor = magicShots(coor, status);	}	
+		if ((shipFound == true)||((status.equalsIgnoreCase("H") && (shipFound == false)))){	coor = magicShots(coor, status);	}	
 		
 		// Randomly generated coordinate
 		else {	coor = randShot();	}	
@@ -290,9 +288,8 @@ public class ComvCom {
 		// Make sure that the shot isn't out of bounds or isn't already shot
 		while(coor.getX()<0||coor.getX()>99){	coor = tryNewX(coor);	}
 		while(coor.getY()<0||coor.getY()>99){	coor = tryNewY(coor);	}
-		while(checkIfIShot(coor)==true){
-				coor = tryNewX(coor);
-				coor = tryNewY(coor);
+		if(checkIfIShot(coor)==true){
+				findNextShot(coor, status); // -------------------------------------------------Recursion
 			}
 		myShotList.add(coor);
 		return coor;
