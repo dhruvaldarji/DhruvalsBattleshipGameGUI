@@ -5,10 +5,9 @@ package fullBattleshipGame;
  */
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,12 +15,13 @@ import java.net.UnknownHostException;
 public class Connection {
 	private ServerSocket		providerSocket;
 	private Socket				connection;
-	private PrintWriter	out;
-	private BufferedReader	in;
+	static ObjectOutputStream	out;
+	static ObjectInputStream	in;
 	private String				message;
 	private boolean 			connected = false;
 	private String 				ip = "localhost";
 	private int 				port = 13000;
+	private String 				opponent = "";
 
         // Constructor
 	Connection(String i, int p) throws Throwable, Throwable{
@@ -32,12 +32,10 @@ public class Connection {
 	
 	private void run() throws UnknownHostException, IOException{
 		if (ip == null){
-			
 			// if server then
 			providerSocket = new ServerSocket(port);
 			System.out.println("Waiting for a connection...");
 			connection = providerSocket.accept();
-			
 		}
 		else{
 			// if client then
@@ -45,7 +43,7 @@ public class Connection {
 			}
 		
 		// When Connected
-		String opponent = connection.getInetAddress()+", "+connection.getPort();
+		opponent = connection.getInetAddress()+", "+connection.getPort();
 		
 		System.out.println("Connected to "+opponent);
 		
@@ -53,14 +51,14 @@ public class Connection {
 		history.addConnection(opponent);
 		//Input/Output streams
 		
-		in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		out = new PrintWriter(connection.getOutputStream(), true);
+		in = new ObjectInputStream(connection.getInputStream());	
+		out = new ObjectOutputStream(connection.getOutputStream());
 		out.flush();
 	}
 
 	// Send a message to opponent
 	void sendMessage(String msg) throws IOException{
-		out.println(msg);
+		out.writeObject(msg);
 		out.flush();
 		System.out.println("Me> "+msg.toString());
 	}
@@ -68,7 +66,7 @@ public class Connection {
 	// Get a message from the opponent
 	public Torpedo getMessage() throws ClassNotFoundException, IOException{
 		Torpedo coor = new Torpedo();
-		message = (String)in.readLine();
+		message = (String)in.readObject();
 		coor = convert(message);
 		if (coor.getStatus().equalsIgnoreCase("H")){	System.out.println("Opp> "+coor.toString()+"----------HIT!----------");	}
 		else System.out.println("Opp> "+coor.toString());
@@ -87,6 +85,14 @@ public class Connection {
 		
 		coor = new Torpedo(s,x,y);
 		return coor;		
+	}
+	
+	public String getMyConnectionInfo(){
+		return connection.getLocalAddress()+", "+connection.getLocalPort();
+	}
+	
+	public String getOppConnectionInfo(){
+		return connection.getInetAddress()+", "+connection.getPort();
 	}
 	
 	public boolean isConnected() {
