@@ -71,7 +71,6 @@ public class ComvCom {
 		battle();
 //		System.out.println("opp: "+myShotList.toString()); // view opponents shotlist
 //		System.out.println("me: "+oppShotList.toString()); // view my shotlist
-		close();
 		}
 	
 	//Close the game
@@ -179,11 +178,13 @@ public class ComvCom {
 		// Calculate the next shot by sending  the coordinates of the last shot
 		// and the status returned by the opponent.
 		coor = findNextShot(coor, oppStatus);
+		
 		// Set my status to the calculations from the opponents last shot.
 		coor.setStatus(myStatus);
 		
 		// Send coordinate 
 		socket.sendMessage(coor.toString());
+		
 	}
 	
 	private void getShotAt() throws ClassNotFoundException, IOException, InterruptedException {
@@ -195,14 +196,15 @@ public class ComvCom {
 		oppShotList.add(oppCoor);
 		
 		oppStatus = oppCoor.getStatus();
+		
 		// Update the opponent's board
 		updateOppBoard(oppStatus, coor);
 		
-		// Check if the opponent has shot the same place twice
-		if (checkIfOppShot(oppCoor)==true){
-			// Return  miss if the opponent has shot the same place twice
-			myStatus = "M";
-		}
+//		// Check if the opponent has shot the same place twice
+//		if (checkIfOppShot(oppCoor)==true){
+//			// Return  miss if the opponent has shot the same place twice
+//			myStatus = "M";
+//		}
 	
 		// Check if the shot was a hit, miss, or lose and make that my next status.
 		myStatus = checkFleet(oppCoor);
@@ -283,7 +285,9 @@ public class ComvCom {
 		if ((shipFound == true)||((status.equalsIgnoreCase("H") && (shipFound == false)))){	coor = magicShots(coor, status);	}	
 		
 		// Randomly generated coordinate
-		else {	coor = randShot();	}	
+		else {	
+			coor = randShot();
+			}	
 		
 		// Make sure that the shot isn't out of bounds or isn't already shot
 		while(coor.getX()<0||coor.getX()>99){	coor = tryNewX(coor);	}

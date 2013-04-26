@@ -53,13 +53,18 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		addWindowListener(this);
 		setSize(500,155);
 		
+		play();
+	}
+	
+	private void play() throws Throwable{
 		while (start != true){
 			if(start == true){
 				StartGame();
 			}
 		}
+		play(); // -------------------------------------------------------------Recursion
 	}
-	
+
 	void mainScreen(){
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new FlowLayout());
@@ -168,10 +173,12 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		startPanel.setLayout(new FlowLayout());
 		
 		JButton startPvCom = new JButton("Start a PvCom");
-		
+		JButton menu = new JButton("Menu");
+		menu.addActionListener(this);
 		startPvCom.addActionListener(this);
 		
 		startPanel.add(startPvCom);
+		startPanel.add(menu);
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -288,16 +295,19 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			ComvCom g1 = new ComvCom();
 			g1.run(null, p);
 			start = false;
+			inGame = false;
 			break;
 		case 2:
 			PvCom g2 = new PvCom();
 			g2.run(null, p);
 			start = false;
+			inGame = false;
 			break;
 		case 3:
 			PvP g3 = new PvP();
 			g3.run(null, p);
 			start = false;
+			inGame = false;
 			break;
 		}
 	}
@@ -308,16 +318,19 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			ComvCom g1 = new ComvCom();
 			g1.run(s, p);
 			start = false;
+			inGame = false;
 			break;
 		case 2:
 			PvCom g2 = new PvCom();
 			g2.run(s, p);
 			start = false;
+			inGame = false;
 			break;
 		case 3:
 			PvP g3 = new PvP();
 			g3.run(s, p);
 			start = false;
+			inGame = false;
 			break;
 		}
 	}
