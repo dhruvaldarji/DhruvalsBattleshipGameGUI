@@ -46,4 +46,11 @@ public class Torpedo {
 	public String toString(){
 		return status+","+x+","+y;
 	}
+	
+	public boolean equals(Torpedo coor){
+		if((this.getX()== coor.getX()) && (this.getY() == coor.getY())){
+			return true;
+		}
+		return false;
+	}
 }

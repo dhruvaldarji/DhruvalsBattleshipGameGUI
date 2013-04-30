@@ -1,89 +1,25 @@
-03/19/2013 19:11:07: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:16:47: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:17:58: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:21:54: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:22:49: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:24:27: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:28:11: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:29:04: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:34:59: There was a problem, game has exited. Error at: null
-03/19/2013 19:35:19: There was a problem, game has exited. Error at: null
-03/19/2013 19:36:04: There was a problem, game has exited. Error at: null
-03/19/2013 19:37:09: There was a problem, game has exited. Error at: null
-03/19/2013 19:40:52: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 19:41:58: There was a problem, game has exited. Error at: null
-03/19/2013 20:15:34: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 20:16:26: There was a problem, game has exited. Error at: Connection timed out: connect
-03/19/2013 20:46:47: There was a problem, game has exited. Error at: Connection timed out: connect
-04/01/2013 23:08:48: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/01/2013 23:10:54: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/01/2013 23:36:14: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/01/2013 23:36:59: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/01/2013 23:37:33: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/03/2013 00:39:05: There was a problem, game has exited. Error at: null
-04/03/2013 00:39:19: There was a problem, game has exited. Error at: null
-04/03/2013 00:41:52: There was a problem, game has exited. Error at: null
-04/03/2013 00:50:20: There was a problem, game has exited. Error at: null
-04/03/2013 01:13:16: There was a problem, game has exited. Error at: Port value out of range: 599595
-04/09/2013 20:04:18: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/09/2013 20:07:48: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/09/2013 20:17:23: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/09/2013 20:29:28: There was a problem, game has exited. Error at: Connection refused: connect
-04/16/2013 20:27:20: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/16/2013 20:56:32: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/16/2013 20:57:32: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/23/2013 18:15:53: There was a problem, game has exited. Error at: -1
-04/23/2013 18:22:30: There was a problem, game has exited. Error at: -1
-04/23/2013 18:29:08: There was a problem, game has exited. Error at: -1
-04/23/2013 18:47:52: There was a problem, game has exited. Error at: Connection timed out: connect
-04/23/2013 18:48:17: There was a problem, game has exited. Error at: null
-04/23/2013 19:05:05: There was a problem, game has exited. Error at: Connection timed out: connect
-04/23/2013 19:11:38: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/23/2013 19:51:26: There was a problem, game has exited. Error at: Connection timed out: connect
-04/23/2013 19:52:15: There was a problem, game has exited. Error at: Connection timed out: connect
-04/25/2013 20:16:06: There was a problem, game has exited. Error at: null
-04/25/2013 20:19:42: There was a problem, game has exited. Error at: null
-04/25/2013 20:20:24: There was a problem, game has exited. Error at: null
-04/25/2013 20:30:10: There was a problem, game has exited. Error at: null
-04/25/2013 20:32:15: There was a problem, game has exited. Error at: null
-04/25/2013 20:33:25: There was a problem, game has exited. Error at: null
-04/25/2013 20:35:36: There was a problem, game has exited. Error at: null
-04/25/2013 20:37:38: There was a problem, game has exited. Error at: null
-04/25/2013 20:48:36: There was a problem, game has exited. Error at: null
-04/25/2013 21:01:24: There was a problem, game has exited. Error at: null
-04/25/2013 21:01:43: There was a problem, game has exited. Error at: null
-04/25/2013 21:02:30: There was a problem, game has exited. Error at: null
-04/25/2013 21:16:01: There was a problem, game has exited. Error at: null
-04/25/2013 21:19:39: There was a problem, game has exited. Error at: null
-04/25/2013 21:21:16: There was a problem, game has exited. Error at: null
-04/25/2013 21:22:06: There was a problem, game has exited. Error at: null
-04/25/2013 21:23:43: There was a problem, game has exited. Error at: null
-04/25/2013 21:25:35: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/25/2013 22:07:42: There was a problem, game has exited. Error at: Connection refused: connect
-04/25/2013 22:18:25: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/25/2013 22:19:34: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/25/2013 22:26:35: There was a problem, game has exited. Error at: Address already in use: JVM_Bind
-04/26/2013 02:10:20: There was a problem, game has exited. Error at: null
-04/26/2013 02:20:53: There was a problem, game has exited. Error at: null
-04/26/2013 02:37:38: There was a problem, game has exited. Error at: socket closed
-04/26/2013 02:39:31: There was a problem, game has exited. Error at: Socket closed
-04/26/2013 02:40:59: There was a problem, game has exited. Error at: socket closed
-04/26/2013 02:44:22: There was a problem, game has exited. Error at: Socket closed
-04/26/2013 02:56:27: There was a problem, game has exited. Error at: Socket closed
-04/26/2013 02:57:40: There was a problem, game has exited. Error at: Socket closed
-04/26/2013 03:00:01: There was a problem, game has exited. Error at: Connection reset
-04/26/2013 03:01:54: There was a problem, game has exited. Error at: Socket closed
-04/26/2013 03:05:30: There was a problem, game has exited. Error at: null
-04/26/2013 03:05:42: There was a problem, game has exited. Error at: null
-04/26/2013 03:15:28: There was a problem, game has exited. Error at: socket closed
-04/26/2013 03:18:59: There was a problem, game has exited. Error at: socket closed
-04/26/2013 03:27:32: There was a problem, game has exited. Error at: socket closed
-04/26/2013 03:28:06: There was a problem, game has exited. Error at: socket closed
-04/26/2013 03:42:03: Error at: socket closed
-04/26/2013 03:43:06: Error at: socket closed
-04/26/2013 03:56:12: Error at: Address already in use: JVM_Bind
-04/26/2013 03:56:51: Error at: socket closed
-04/26/2013 03:57:55: Error at: socket closed
-04/26/2013 04:00:08: Error at: socket closed
-04/26/2013 04:05:26: Error at: socket closed
-04/26/2013 04:08:21: Error at: socket closed
+04/30/2013 14:14:02: Error at: Connection reset
+04/30/2013 14:17:15: Error at: Connection reset
+04/30/2013 14:19:12: Error at: Address already in use: JVM_Bind
+04/30/2013 14:31:31: Error at: Connection reset
+04/30/2013 15:09:07: Error at: Connection reset
+04/30/2013 15:22:45: Error at: Connection reset
+04/30/2013 15:25:10: Error at: 100
+04/30/2013 16:10:56: Error at: Address already in use: JVM_Bind
+04/30/2013 16:19:16: Error at: Connection reset
+04/30/2013 16:53:09: Error at: connect: Address is invalid on local machine, or port is not valid on remote machine
+04/30/2013 16:59:04: Error at: connect: Address is invalid on local machine, or port is not valid on remote machine
+04/30/2013 17:05:04: Error at: Connection refused: connect
+04/30/2013 17:08:15: Error at: Connection refused: connect
+04/30/2013 17:09:44: Error at: Connection refused: connect
+04/30/2013 17:10:14: Error at: Connection refused: connect
+04/30/2013 17:12:17: Error at: Connection refused: connect
+04/30/2013 17:12:59: Error at: Connection refused: connect
+04/30/2013 17:14:38: Error at: Connection refused: connect
+04/30/2013 17:25:20: Error at: Connection refused: connect
+04/30/2013 17:29:00: Error at: Connection refused: connect
+04/30/2013 17:32:31: Error at: Connection refused: connect
+04/30/2013 17:50:11: Error at: Connection reset
+04/30/2013 17:51:02: Error at: Connection reset
+04/30/2013 17:56:34: Error at: Connection reset
+04/30/2013 17:58:22: Error at: Connection reset

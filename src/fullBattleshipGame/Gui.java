@@ -23,7 +23,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	JPanel mainPanel, gamePanel, choicePanel, hostPanel, joinPanel,startPanel;
 	JTextField port, server;
 	String s = "localhost";
-	int p = 0;
+	int p = 13000;
 	static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
 	int hostOrClient = 0; // if 1 then host , if 2 then client
 	static Container c;
@@ -62,6 +62,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 				StartGame();
 			}
 		}
+		start = false;
+		inGame = false;
 		play(); // -------------------------------------------------------------Recursion
 	}
 
@@ -157,6 +159,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		
 		join.addActionListener(this);
 		hostJoin.addActionListener(this);
+		port.addActionListener(this);
 		
 		JPanel panel = new JPanel((new GridLayout(3,1)));
 		
@@ -245,7 +248,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		}
 		else if (msg.equalsIgnoreCase("Host A Game")){
 			System.out.println(msg);
-			hostOrClient = 1;
 			if(!port.getText().equalsIgnoreCase(""))
 				p = Integer.parseInt(port.getText());
 			port.setText("");
@@ -257,23 +259,22 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		}
 		else if (msg.equalsIgnoreCase("Join a Game")){
 			System.out.println(msg);
-			hostOrClient = 2;
-			if(!server.getText().equalsIgnoreCase("")) 
-				s= server.getText();
-			if(!(port.getText().equalsIgnoreCase(""))) 
+			if(!port.getText().equalsIgnoreCase(""))
 				p = Integer.parseInt(port.getText());
+			if(!server.getText().equalsIgnoreCase("")) {
+				s= server.getText();
+			}
+			System.out.println(server.toString());
+			System.out.println(port.toString());
 			server.setText("");
 			port.setText("");
 			System.out.println(msg+": "+s+", "+p);
-			getContentPane().removeAll();
 			inGame = true;	
 			getContentPane().removeAll();
 			getContentPane().add(mainPanel);
 			start = true;
 		}
-		else if(msg.equalsIgnoreCase("Start a PvCom")){
-			
-		}
+		else if(msg.equalsIgnoreCase("Start a PvCom")){	}
 		getContentPane().validate();
 		getContentPane().repaint();
 	}
