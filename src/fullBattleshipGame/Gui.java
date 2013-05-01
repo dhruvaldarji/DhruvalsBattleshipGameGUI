@@ -1,6 +1,5 @@
 package fullBattleshipGame;
 
-import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -11,6 +10,8 @@ import java.awt.event.WindowListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -20,14 +21,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 
 	private static final long serialVersionUID = 1L;
 	
-	JPanel mainPanel, gamePanel, choicePanel, hostPanel, joinPanel,startPanel;
-	JTextField port, server;
+	private JPanel guiPanel, mainPanel, gamePanel, choicePanel, hostPanel, joinPanel, startPanel, messagePanel;
+	JTextField hostPort, joinPort, server;
+	static JTextArea console;
 	String s = "localhost";
 	int p = 13000;
 	static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
 	int hostOrClient = 0; // if 1 then host , if 2 then client
-	static Container c;
-
 	boolean inGame = false;
 	boolean start = false;
 	
@@ -36,23 +36,24 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		try	{
 	      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	    }	catch (Exception localException) {}
-		
-		setGui(getContentPane());
-		setVisible(true);
 		mainScreen();
 		gameChoice();
 		gameTypeScreen();
 		joinScreen();
 		hostScreen();	
 		startScreen();
-		
-//		SplashScreen splash;
-		
+		messageBox();		
 		// set Exit solution
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addWindowListener(this);
-		setSize(500,155);
-		
+		setSize(475,300);
+		setLayout(new FlowLayout());
+		guiPanel = new JPanel();
+		guiPanel.setLayout(new FlowLayout());
+		guiPanel.add(mainPanel);
+		add(guiPanel);
+		add(messagePanel);
+		setVisible(true);		
 		play();
 	}
 	
@@ -60,11 +61,11 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		while (start != true){
 			if(start == true){
 				StartGame();
+				play(); // -------------------------------------------------------------Recursion
 			}
 		}
 		start = false;
 		inGame = false;
-		play(); // -------------------------------------------------------------Recursion
 	}
 
 	void mainScreen(){
@@ -79,11 +80,12 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		config.addActionListener(this);
 		exitButton.addActionListener(this);	
 		
+		config.setEnabled(false); // Under Construction
+		
 		mainPanel.add(battle);
 		mainPanel.add(config);
 		mainPanel.add(exitButton);
 		
-		getContentPane().add(mainPanel);
 	}
 	
 	void gameTypeScreen(){
@@ -99,6 +101,9 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		pvc.addActionListener(this);
 		pvp.addActionListener(this);	
 		menu.addActionListener(this);
+		
+		pvc.setEnabled(false); // Under Construction
+		pvp.setEnabled(false); // Under Construction
 		
 		gamePanel.add(com);
 		gamePanel.add(pvc);
@@ -128,17 +133,17 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		hostPanel = new JPanel();
 		hostPanel.setLayout(new FlowLayout());
 		
-		port = new JTextField("");
+		hostPort = new JTextField("13000");
 		JButton create = new JButton("Host A Game");
 		JButton hostJoin = new JButton("Host/Join Menu");
 		
-		port.setBorder(new TitledBorder(new EtchedBorder(), "Port"));
+		hostPort.setBorder(new TitledBorder(new EtchedBorder(), "Port"));
 		
 		create.addActionListener(this);
 		hostJoin.addActionListener(this);
 		
 		JPanel panel = new JPanel((new GridLayout(2,1)));
-		panel.add(port);
+		panel.add(hostPort);
 		panel.add(create);
 		hostPanel.add(panel);
 		hostPanel.add(hostJoin);
@@ -149,26 +154,24 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		joinPanel = new JPanel();
 		joinPanel.setLayout(new FlowLayout());
 		
-		server = new JTextField("");
-		port = new JTextField("");
-		JButton join = new JButton("Join a Game");
+		joinPort = new JTextField("13000");
+		server = new JTextField("localhost");
+		
+		JButton join = new JButton("Join A Game");
 		JButton hostJoin = new JButton("Host/Join Menu");
 		
-		port.setBorder(new TitledBorder(new EtchedBorder(), "Port"));
+		joinPort.setBorder(new TitledBorder(new EtchedBorder(), "Port"));
 		server.setBorder(new TitledBorder(new EtchedBorder(), "Server"));
 		
 		join.addActionListener(this);
 		hostJoin.addActionListener(this);
-		port.addActionListener(this);
 		
 		JPanel panel = new JPanel((new GridLayout(3,1)));
-		
 		panel.add(server);
-		panel.add(port);
+		panel.add(joinPort);
 		panel.add(join);
 		joinPanel.add(panel);
-		joinPanel.add(hostJoin);
-		
+		joinPanel.add(hostJoin);	
 	}
 	
 	void startScreen(){
@@ -184,94 +187,101 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		startPanel.add(menu);
 	}
 	
+	void messageBox(){
+		messagePanel = new JPanel();
+		messagePanel.setLayout(new FlowLayout());
+		
+		console = new JTextArea("Welcome to Dhruval's Battleship Game\n");
+		console.setBorder(new TitledBorder(new EtchedBorder(), "Headquarters"));
+	    console.setEditable(false);
+		JScrollPane scroll = new JScrollPane(console);
+		messagePanel.add(scroll);
+	}
+	
+	public void print(Object message){
+		console.append(message.toString());
+		console.setCaretPosition(console.getText().length() - 1);
+	}
+	
+	public static void println(Object message){
+		console.append(message.toString()+"\n");
+		console.setCaretPosition(console.getText().length() - 1);
+	}
+	
 	public void actionPerformed(ActionEvent arg0) {
 				
 		String msg = arg0.getActionCommand();
 		if(msg.equalsIgnoreCase("Battle")){
-			getContentPane().removeAll();
-			getContentPane().add(gamePanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(gamePanel);
 		}
 		else if (msg.equalsIgnoreCase("Config")){
-			getContentPane().removeAll();
-			getContentPane().add(gamePanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(gamePanel);
 		}
 		else if(msg.equalsIgnoreCase("Exit")){
-			getContentPane().removeAll();
+			guiPanel.removeAll();
 			System.exit(0);
 		}
 		else if (msg.equalsIgnoreCase("Com vs. Com")){
-			getContentPane().removeAll();
-			getContentPane().add(choicePanel);
+			guiPanel.removeAll();
+			guiPanel.add(choicePanel);
 			gameType = 1;
-			System.out.println(msg);
 		}
 		else if (msg.equalsIgnoreCase("Player vs. Com")){
-			getContentPane().removeAll();
-			getContentPane().add(startPanel);
+			guiPanel.removeAll();
+			guiPanel.add(startPanel);
 			gameType = 2;
-			System.out.println(msg);
 		}
 		else if (msg.equalsIgnoreCase("Player vs Player")){
-			getContentPane().removeAll();
-			getContentPane().add(choicePanel);
+			guiPanel.removeAll();
+			guiPanel.add(choicePanel);
 			gameType = 3;
-			System.out.println(msg);
 		}
 		else if (msg.equalsIgnoreCase("Menu")){
-			getContentPane().removeAll();
-			getContentPane().add(mainPanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(mainPanel);
 		}
 		else if (msg.equalsIgnoreCase("Host/Join Menu")){
-			getContentPane().removeAll();
-			getContentPane().add(choicePanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(choicePanel);
 		}
 		else if (msg.equalsIgnoreCase("Host")){
 			hostOrClient = 1;
-			getContentPane().removeAll();
-			getContentPane().add(hostPanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(hostPanel);
 		}
 		else if (msg.equalsIgnoreCase("Join")){
 			hostOrClient = 2;
-			getContentPane().removeAll();
-			getContentPane().add(joinPanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(joinPanel);
 		}
 		else if (msg.equalsIgnoreCase("Game Type Menu")){
-			getContentPane().removeAll();
-			getContentPane().add(gamePanel);
-			System.out.println(msg);
+			guiPanel.removeAll();
+			guiPanel.add(gamePanel);
 		}
 		else if (msg.equalsIgnoreCase("Host A Game")){
-			System.out.println(msg);
-			if(!port.getText().equalsIgnoreCase(""))
-				p = Integer.parseInt(port.getText());
-			port.setText("");
-			System.out.println(msg+": "+p);
+			if(!hostPort.getText().equalsIgnoreCase(""))
+				p = Integer.parseInt(hostPort.getText());
+			hostPort.setText("");
+			println(msg+": "+p);
 			inGame = true;
-			getContentPane().removeAll();
-			getContentPane().add(mainPanel);
+			guiPanel.removeAll();
+			guiPanel.add(mainPanel);
 			start = true;
 		}
 		else if (msg.equalsIgnoreCase("Join a Game")){
-			System.out.println(msg);
-			if(!port.getText().equalsIgnoreCase(""))
-				p = Integer.parseInt(port.getText());
+			if(!joinPort.getText().equalsIgnoreCase(""))
+				p = Integer.parseInt(joinPort.getText());
 			if(!server.getText().equalsIgnoreCase("")) {
 				s= server.getText();
 			}
-			System.out.println(server.toString());
-			System.out.println(port.toString());
 			server.setText("");
-			port.setText("");
-			System.out.println(msg+": "+s+", "+p);
+			joinPort.setText("");
+			println(msg+": "+s+", "+p);
 			inGame = true;	
-			getContentPane().removeAll();
-			getContentPane().add(mainPanel);
+			guiPanel.removeAll();
+			guiPanel.add(mainPanel);
 			start = true;
 		}
 		else if(msg.equalsIgnoreCase("Start a PvCom")){	}
@@ -335,7 +345,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			break;
 		}
 	}
-
+	
 	// I can ignore the other WindowListener methods
 	public void windowClosed(WindowEvent e) {}
 	public void windowOpened(WindowEvent e) {}
@@ -349,13 +359,4 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		dispose();
 		System.exit(0);
 	}
-
-	public static Container getGui() {
-		return c;
-	}
-
-	public void setGui(Container c) {
-		Gui.c = c;
-	}
-	
 }

@@ -27,7 +27,7 @@ public class logFile {
 				errorLog.createNewFile();
 			}
 		// If permission has been denied print: 
-		catch (Exception e) {	System.out.println("Error at: "+e.getMessage());	}
+		catch (Exception e) {	Gui.println("Error at: "+e.getMessage());	}
 		}
 
 	// Print error message to file
@@ -38,7 +38,7 @@ public class logFile {
 			// Print the time that the error occurred
 			printWriter.print(logFile.getTime()+": "+msg+newLine); }
 		// If file, not found print: 
-		catch (Exception e){	System.out.println("Error at: "+e.getStackTrace());	}
+		catch (Exception e){	Gui.println("Error at: "+e.getStackTrace());	}
 		finally {	printWriter.close();	}
 		}
 	

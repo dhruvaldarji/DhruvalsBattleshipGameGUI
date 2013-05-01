@@ -46,9 +46,9 @@ public class PvCom {
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
 		battle();
-//			System.out.println("opp: "+myShotList.toString());
-//			System.out.println("me: "+oppShotList.toString());
-		System.out.println("Shots Made: "+myShotList.size());
+//			Gui.println("opp: "+myShotList.toString());
+//			Gui.println("me: "+oppShotList.toString());
+		Gui.println("Shots Made: "+myShotList.size());
 		close();
 		}
 	
@@ -60,7 +60,7 @@ public class PvCom {
 	}
 	
 	private void chooseShips() {
-		System.out.println("Choose 16 ships");
+		Gui.println("Choose 16 ships");
 		do{
 			ocean.enableMyBoard(true);
 			ocean.selectingShips = true;
@@ -68,7 +68,7 @@ public class PvCom {
 		ocean.setVisible(false);
 		ocean.enableMyBoard(false);
 		ocean.selectingShips = false;
-		System.out.println("Done choosing Ships");
+		Gui.println("Done choosing Ships");
 		ocean.setVisible(true);
 	}
 	
@@ -147,8 +147,8 @@ public class PvCom {
 				}while(!myStatus.equalsIgnoreCase("L")|| !(oppStatus.equalsIgnoreCase("L")) || (myShotList.size()!=10000));
 			} catch (Throwable e) {}
 		finally{	
-			if (getFleet().isEmpty()==true || myShotList.size()==10000){	System.out.println("\nYou Lose. Shame on you socket!");	}
-			else if (oppStatus.equalsIgnoreCase("L")){	System.out.println("\nYou're a Winner socket!");	}
+			if (getFleet().isEmpty()==true || myShotList.size()==10000){	Gui.println("\nYou Lose. Shame on you socket!");	}
+			else if (oppStatus.equalsIgnoreCase("L")){	Gui.println("\nYou're a Winner socket!");	}
 			}
 		}
 	

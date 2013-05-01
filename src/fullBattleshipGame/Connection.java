@@ -34,7 +34,7 @@ public class Connection {
 		if (ip == null){
 			// if server then
 			providerSocket = new ServerSocket(port);
-			System.out.println("Waiting for a connection...");
+			Gui.println("Waiting for a connection...");
 			connection = providerSocket.accept();
 		}
 		else{
@@ -45,7 +45,7 @@ public class Connection {
 		// When Connected
 		opponent = connection.getInetAddress()+", "+connection.getPort();
 		
-		System.out.println("Connected to "+opponent);
+		Gui.println("Connected to "+opponent);
 		
 		setConnected(true);
 		history.addConnection(opponent);

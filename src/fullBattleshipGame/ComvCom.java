@@ -52,12 +52,10 @@ public class ComvCom {
 		
 		// Host a game or connect to a game
 		if (h == null){ // I'm hosting
-			System.out.println("Hosting");
 			hostClient = 0;
 			socket = new Connection(null, p);
 		}
 		else{ // I'm a client
-			System.out.println("Joining");
 			hostClient = 1;
 			socket = new Connection(h, p);
 		}
@@ -66,11 +64,11 @@ public class ComvCom {
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
 		
 		// Print who the game connected to
-		System.out.println("Game now connected to "+socket.getOppConnectionInfo());
+		Gui.println("Game now connected to "+socket.getOppConnectionInfo());
 				
 		battle();
-//		System.out.println("opp: "+myShotList.toString()); // view opponents shotlist
-//		System.out.println("me: "+oppShotList.toString()); // view my shotlist
+//		Gui.println("opp: "+myShotList.toString()); // view opponents shotlist
+//		Gui.println("me: "+oppShotList.toString()); // view my shotlist
 		}
 	
 	//Close the game
@@ -78,19 +76,19 @@ public class ComvCom {
 		// Determine winner
 		battling = false;
 		if(myStatus.equalsIgnoreCase("L")){	
-			System.out.println("You lost, all of your ships have been sunk!");
-			System.out.println("You lost in "+oppShotList.size()+" shots.");
-			System.out.println("You shot "+myShotList.size()+" shots.");
+			Gui.println("You lost, all of your ships have been sunk!");
+			Gui.println("You lost in "+oppShotList.size()+" shots.");
+			Gui.println("You shot "+myShotList.size()+" shots.");
 		}
 		else if(oppStatus.equalsIgnoreCase("L")){	
-			System.out.println("You Win, all of the opponents ships have been sunk!");
-			System.out.println("You took "+myShotList.size()+" shots.");
-			System.out.println("Opponent shot "+oppShotList.size()+" shots.");
+			Gui.println("You Win, all of the opponents ships have been sunk!");
+			Gui.println("You took "+myShotList.size()+" shots.");
+			Gui.println("Opponent shot "+oppShotList.size()+" shots.");
 
 		}
-		else if(myShotList.size()==10000){	System.out.println("You lost, you shot 10,000 times!");	}
-		else if(oppShotList.size()==10000){	System.out.println("You Win, opponent shot 10,000 times!");	}
-		else System.out.println("Could not determine winner.");
+		else if(myShotList.size()==10000){	Gui.println("You lost, you shot 10,000 times!");	}
+		else if(oppShotList.size()==10000){	Gui.println("You Win, opponent shot 10,000 times!");	}
+		else Gui.println("Could not determine winner.");
 		
 		// Close the socket connection
 		try {	socket.close();	Thread.sleep(3000);	}	catch (Throwable e) {}
@@ -99,7 +97,7 @@ public class ComvCom {
 	// Choose where to put ships
 	@SuppressWarnings("unused")
 	private void chooseShips() {
-		System.out.println("Choose 24 ships");
+		Gui.println("Choose 24 ships");
 		do{
 			ocean.enableMyBoard(true);
 			ocean.selectingShips = true;
@@ -107,7 +105,7 @@ public class ComvCom {
 		ocean.setVisible(false);
 		ocean.enableMyBoard(false);
 		ocean.selectingShips = false;
-		System.out.println("Done choosing Ships");
+		Gui.println("Done choosing Ships");
 		ocean.setVisible(true);
 	}
 	

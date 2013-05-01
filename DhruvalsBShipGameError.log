@@ -28,3 +28,19 @@
 04/30/2013 23:01:19: Error at: socket closed
 05/01/2013 02:44:08: Error at: Connection reset
 05/01/2013 03:06:35: Error at: socket closed
+05/01/2013 03:39:51: Error at: Connection reset
+05/01/2013 03:47:18: Error at: Connection refused: connect
+05/01/2013 03:49:58: Error at: Connection refused: connect
+05/01/2013 03:50:34: Error at: Connection refused: connect
+05/01/2013 03:54:33: Error at: Connection refused: connect
+05/01/2013 03:56:08: Error at: Connection refused: connect
+05/01/2013 03:56:45: Error at: Connection refused: connect
+05/01/2013 03:57:51: Error at: Connection refused: connect
+05/01/2013 03:59:25: Error at: Connection refused: connect
+05/01/2013 03:59:48: Error at: Connection refused: connect
+05/01/2013 04:02:58: Error at: Connection refused: connect
+05/01/2013 04:04:02: Error at: Connection refused: connect
+05/01/2013 04:06:09: Error at: Connection refused: connect
+05/01/2013 05:15:15: Error at: adding container's parent to itself
+05/01/2013 05:21:41: Error at: Connection reset
+05/01/2013 05:35:53: Error at: Connection reset

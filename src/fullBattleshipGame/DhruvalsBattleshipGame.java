@@ -14,7 +14,7 @@ public class DhruvalsBattleshipGame {
 				logFile.logMessage("Error at: "+e.getLocalizedMessage());
 				 System.err.println("Error: "+e.fillInStackTrace());	} 
 		finally{
-			System.out.println("GoodBye");
+			Gui.println("GoodBye");
 		}
 		}
 	}

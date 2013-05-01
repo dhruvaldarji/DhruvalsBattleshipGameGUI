@@ -72,7 +72,7 @@ public class board extends JFrame implements ActionListener{
 			} catch (Throwable e1) {}
 		}else if(selectingShips==true){
 			if (msg.startsWith("m")){
-				System.out.println("Button: "+msg);
+				Gui.println("Button: "+msg);
 				JButton b = (JButton) e.getSource();
 				b.setBackground(Color.YELLOW);
 				s = new largeBattleship(getButtonX(b),getButtonY(b));
@@ -80,15 +80,15 @@ public class board extends JFrame implements ActionListener{
 				switch (Gui.gameType){
 				case 1:
 					ComvCom.getFleet().add(s);
-					System.out.println(ComvCom.getFleet().size());
+					Gui.println(ComvCom.getFleet().size());
 					break;
 				case 2:
 					PvCom.getFleet().add(s);
-					System.out.println(PvCom.getFleet().size());
+					Gui.println(PvCom.getFleet().size());
 					break;
 				case 3:
 					PvP.fleet.add(s);
-					System.out.println(PvP.fleet.size());
+					Gui.println(PvP.fleet.size());
 					break;
 				}
 			}
