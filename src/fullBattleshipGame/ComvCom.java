@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-
-
 public class ComvCom {
 	
 	// My connection
@@ -27,7 +25,7 @@ public class ComvCom {
 	private Torpedo coor = new Torpedo("M",0,0), oppCoor = new Torpedo(), specialShot = new Torpedo(), next = new Torpedo();
 	private String oppStatus = "M", myStatus = "M";
 	private boolean shipFound = false, right = false, down = false, left = false, up = false, battling=false;
-	private int timesShotSpecially = 0, count = 0;
+	private int timesShotSpecially = 0, hits = 0, direction = 1; 
 	
 	public ComvCom() throws Throwable{
 		init();
@@ -155,7 +153,7 @@ public class ComvCom {
 	private void battle() throws Throwable {	
 		battling = true;
 		// if host then listen
-		if (hostClient != 1){	getShotAt();	}
+		if (hostClient == 0){	getShotAt();	}
 		do{
 			shoot();
 			if(myStatus.equalsIgnoreCase("L")||myShotList.size()==10000){	close();	}
@@ -170,13 +168,12 @@ public class ComvCom {
 		// Calculate the next shot by sending  the coordinates of the last shot
 		// and the status returned by the opponent.
 		coor = findNextShot(coor, oppStatus);
-		// Check if I have hit this shot yet, if not the send
-		// If i have, then findNextShot
-//		String currentStatus = checkIfIShot(coor);
-//		while(!currentStatus.equalsIgnoreCase("N")){
-//			coor = findNextShot(coor, currentStatus);
-//			currentStatus = checkIfIShot(coor);
-//		}
+		// Check if I have hit this shot yet, if not then send. If i have, then findNextShot
+		String currentStatus = checkIfIShot(coor); // Status of the coordinate I'm trying to shoot.
+		while(!currentStatus.equalsIgnoreCase("N")){
+			coor = findNextShot(coor,currentStatus);
+			currentStatus = checkIfIShot(coor);
+		}
 		// Set my status to the calculations from the opponents last shot.
 		coor.setStatus(myStatus);
 		myShotList.add(coor);
@@ -241,7 +238,6 @@ public class ComvCom {
 	}
 	
 	// Check if the coordinate has already been shot by me and return value
-		@SuppressWarnings("unused")
 		private String checkIfIShot(Torpedo coor){
 			// Check if coordinate has already been shot
 			if(ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.BLUE){
@@ -286,14 +282,14 @@ public class ComvCom {
 	
 	// Reset the values of the magicShot method
 	private void specialReset() {
+		direction = 1;
 		shipFound = false;
 		right = false;
 		down = false;
 		left = false;
 		up = false;
 		timesShotSpecially = 0;
-		count = 0;
-		
+		hits = 0;
 	}
 
 	// Find random coordinate to shoot
@@ -307,10 +303,11 @@ public class ComvCom {
 	
 //	Hone in on a hit ship. Version 2
 	private Torpedo magicShots(Torpedo coor, String status){
-		System.out.println("MagicShots!!!!!!!!!!!!!!!!!!!!!");
 		// If a ship has just been found
 		if (shipFound == false && status.equalsIgnoreCase("H")){
+			direction = 1;
 			specialReset();
+			hits = 1;
 			shipFound = true;
 			// the initial shot that was a Hit
 			specialShot = new Torpedo(coor.getX(), coor.getY()); 
@@ -318,82 +315,116 @@ public class ComvCom {
 		// The calculations for the next shot are always set relative to the initial shot 
 		next = new Torpedo(specialShot.getX(),specialShot.getY()); 
 		// Shoot in all directions to decide where to shoot next
-		if (timesShotSpecially<5){
+		if (timesShotSpecially<5 && right == false && left == false && down == false && up == false){
 			switch(timesShotSpecially){
 			case 0: // Shoot right of initial
 				next.setX(specialShot.getX()+1);
 				timesShotSpecially++;
-				break;
+				return next;
 			case 1:	// shoot down from initial
-				if (status.equalsIgnoreCase("H")){	 right = true;	}
+				if (status.equalsIgnoreCase("H")){	 
+					right = true;
+					hits++;
+					
+				}
 				next.setY(specialShot.getY()+1);
 				timesShotSpecially++;
-				break;
+				return next;
 			case 2: // Shoot left of initial
-				if(status.equalsIgnoreCase("H")){	down = true;	}
+				if(status.equalsIgnoreCase("H")){	
+					down = true;
+					hits++;
+				}
 				next.setX(specialShot.getX()-1);
 				timesShotSpecially++;
-				break;
+				return next;
 			case 3: // Shoot up from initial
-				if (status.equalsIgnoreCase("H")){	left = true;}
+				if (status.equalsIgnoreCase("H")){	
+					left = true;
+					hits++;
+				}
 				next.setY(specialShot.getY()-1);
 				timesShotSpecially++;
-				break;
+				return next;
 			case 4:
-				if(status.equalsIgnoreCase("H")){	up = true;	}
+				if(status.equalsIgnoreCase("H")){	
+					up = true;
+					hits++;
+				}
 				timesShotSpecially++;
 			}
 		}
-		// Determine what ship has been found and shoot accordingly.
-		if (right == true || down == true || left == true || up == true){
-			timesShotSpecially = 5; // Stop shooting specially
-			// just right
-			if (right == true){
-				if(count<10){
-					next.setX(specialShot.getX()-4+count);
-					count++;
-					return next;
-				}
-				else{
-					specialReset();
+		else{
+			if (hits >=6){	
+				specialReset();	// ship has definitely been sunk.
+				next = randShot();
+			} 
+			// Determine what ship has been found and shoot accordingly.
+			else { // ship has not yet been sunk
+				if (right == true || down == true || left == true || up == true){
+					// just right
+					if (right == true){
+						if(hits<6){
+							if(hits>=2){
+								if(status.equalsIgnoreCase("H")){	hits++;	} // if hit then increment
+								else{
+									direction *= (-1); // change direction
+									coor.setX(specialShot.getX());
+								}
+							}
+							next.setX(coor.getX()+direction);
+							return next;
+						}
+					}
+					// just down
+					else if (down == true){
+						if(hits<6){
+							if(hits>=2){
+								if(status.equalsIgnoreCase("H")){	hits++;	} // if hit then increment
+								else{
+									direction *= (-1); // change direction
+									coor.setY(specialShot.getY());
+								}
+							}
+							next.setY(coor.getY()+direction);
+							return next;
+						}
+					}
+					// just left
+					else if (left == true){
+						if(hits<6){
+							if(hits>=2){
+								if(status.equalsIgnoreCase("H")){	hits++;	} // if hit then increment
+								else{
+									direction *= (-1); // change direction
+									coor.setX(specialShot.getX());
+								}
+							}
+							next.setX(coor.getX()+direction);
+							return next;
+						}
+					}
+					// just up
+					else if (up == true){
+						if(hits<6){
+							if(hits>=2){
+								if(status.equalsIgnoreCase("H")){	hits++;	} // if hit then increment
+								else{
+									direction *= (-1); // change direction
+									coor.setY(specialShot.getY());
+								}
+							}
+							next.setY(coor.getY()+direction);
+							return next;
+						}
+					}
+					else {
+						specialReset();
+						next = randShot(); // randomly generated coordinate
+					}
 				}
 			}
-			// just down
-			else if (down == true){
-				if(count<10){
-					next.setY(specialShot.getY()-4+count);	
-					count++;
-					return next;
-				}
-				else{
-					specialReset();
-				}
-			}
-			// just left
-			else if (left == true){
-				if(count<5){
-					next.setX(specialShot.getX()-1-count);
-					count++;
-					return next;
-				}
-				else{
-					specialReset();
-				}
-			}
-			// just up
-			else if (up == true){
-				if(count <5){
-					next.setY(specialShot.getY()-1-count);
-					count++;
-					return next;
-				}
-				else {
-					specialReset();
-				}
-			}
-			else {
-				next = randShot(); // randomly generated coordinate
-			}
+			
 		}
 		return next;
 	}
