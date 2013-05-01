@@ -31,7 +31,7 @@ public class logFile {
 		}
 
 	// Print error message to file
-	static void logMessage(String msg){
+	void logMessage(String msg){
 		try {
 			fileOutPutStream = new FileOutputStream(defaultFileName, true);
 			printWriter = new PrintWriter(fileOutPutStream);

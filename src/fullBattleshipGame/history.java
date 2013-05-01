@@ -32,7 +32,7 @@ public class history {
 		}
 
 	// Print error message to file
-	static void addConnection(String msg){
+	void addConnection(String msg){
 		try {
 			fileOutPutStream = new FileOutputStream(defaultFileName, true);
 			printWriter = new PrintWriter(fileOutPutStream);

@@ -15,13 +15,14 @@ import java.net.UnknownHostException;
 public class Connection {
 	private ServerSocket		providerSocket;
 	private Socket				connection;
-	static ObjectOutputStream	out;
-	static ObjectInputStream	in;
+	private static ObjectOutputStream	out;
+	private static ObjectInputStream	in;
 	private String				message;
 	private boolean 			connected = false;
 	private String 				ip = "localhost";
 	private int 				port = 13000;
 	private String 				opponent = "";
+	public history h = new history();
 
         // Constructor
 	Connection(String i, int p) throws Throwable, Throwable{
@@ -48,7 +49,7 @@ public class Connection {
 		Gui.println("Connected to "+opponent);
 		
 		setConnected(true);
-		history.addConnection(opponent);
+		h.addConnection(opponent);
 		//Input/Output streams
 		
 		in = new ObjectInputStream(connection.getInputStream());	
