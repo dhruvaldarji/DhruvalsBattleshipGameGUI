@@ -62,9 +62,6 @@ public class ComvCom {
 		
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
-		
-		// Print who the game connected to
-		Gui.println("Game now connected to "+socket.getOppConnectionInfo());
 				
 		battle();
 //		Gui.println("opp: "+myShotList.toString()); // view opponents shotlist

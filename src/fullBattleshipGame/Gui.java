@@ -66,6 +66,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		}
 		start = false;
 		inGame = false;
+		getContentPane().validate();
+		getContentPane().repaint();
 	}
 
 	void mainScreen(){
