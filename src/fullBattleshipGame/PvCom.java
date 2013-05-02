@@ -15,7 +15,7 @@ public class PvCom {
 	private static ArrayList<ship> oppFleet = new ArrayList<ship>(); // -----ArrayList
 	private ArrayList<Torpedo> oppShotList = new ArrayList<Torpedo>(); // -----ArrayList
 	private static ArrayList<Torpedo> myShotList = new ArrayList<Torpedo>(); // -----ArrayList
-	
+	private int boardX=20, boardY=20, shipAmt = 20;
 	// The following deal with shooting and focused shots against the opponent.
 	private Torpedo coor = new Torpedo("M",0,0);
 	private static boolean battling=false, shooting = false;
@@ -27,7 +27,7 @@ public class PvCom {
 	// Initialize the game
 	private void init() throws Throwable {
 		// Make a new game board with 100x100 buttons
-		ocean = new board(26,26);
+		ocean = new board(boardX,boardY);
 		// Empty my shot list
 		getMyShotList().clear();
 		// Empty opponents shot list
@@ -41,13 +41,11 @@ public class PvCom {
 	public void run() throws Throwable {
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
-		
+		shipAmt = (((boardX+boardY)/2));
 		chooseShips(); // User selects ships
 		createShipsRand(); // Computer randomly generates ships
 				
 		battle();
-//		Gui.println("opp: "+myShotList.toString()); // view opponents shotlist
-//		Gui.println("me: "+oppShotList.toString()); // view my shotlist
 		}
 	
 	//Close the game
@@ -55,85 +53,116 @@ public class PvCom {
 		// Determine winner
 		setBattling(false);
 		if((getFleet().size()==0)){	
-			Gui.println("You lost, all of your ships have been sunk!");
-			Gui.println("You lost in "+oppShotList.size()+" shots.");
-			Gui.println("You shot "+getMyShotList().size()+" shots.");
+			Gui.println("You lost, all of your ships have been sunk!\n"+
+						"You lost in "+oppShotList.size()+" shots.\n"+
+						"You shot "+getMyShotList().size()+" shots.");
+			ocean.getMyPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.PINK);
 		}
 		else if((getOppFleet().size()==0)){	
-			Gui.println("You Win, all of the opponents ships have been sunk!");
-			Gui.println("You took "+getMyShotList().size()+" shots.");
-			Gui.println("Opponent shot "+oppShotList.size()+" shots.");
+			Gui.println("You Win, all of the opponents ships have been sunk!\n"+
+						"You took "+getMyShotList().size()+" shots.\n"+
+						"Opponent shot "+oppShotList.size()+" shots.");
+			ocean.getOppPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.PINK);
 
 		}
-		else if(getMyShotList().size()==676){	Gui.println("You lost, you shot 676 times!");	}
-		else if(oppShotList.size()==676){	Gui.println("You Win, opponent shot 676 times!");	}
+
+		else if(getMyShotList().size()==(boardX*boardY)){	Gui.println("You lost, you shot "+(boardX*boardY)+" times!");	}
+		else if(oppShotList.size()==(boardX*boardY)){	Gui.println("You Win, opponent shot "+(boardX*boardY)+" times!");	}
 		else Gui.println("Could not determine winner.");
-		
+
 		// Close the socket connection
 		try {	Thread.sleep(3000);	}	catch (Throwable e) {}
-		}
+	}
 	
 	// Choose where to put ships
 	private void chooseShips() {
-		Gui.println("Choose 24 ships");
+		fleet.clear();
+		ocean.enableOppBoard(false);
+		Gui.println("Click ocean and select "+shipAmt+" ships");
 		do{
 			ocean.enableMyBoard(true);
 			ocean.selectingShips = true;
-		}while(getFleet().size()<24);
-		ocean.setVisible(false);
-		ocean.enableMyBoard(false);
+		}while(getFleet().size()<shipAmt);
 		ocean.selectingShips = false;
+		ocean.enableMyBoard(false);
 		Gui.println("Done choosing Ships");
 		ocean.setVisible(true);
 	}
 	
 	// Computer chooses ships randomly
-	private void createShipsRand() {
-		largeBattleship hShip = new largeBattleship();
-		largeBattleship vShip = new largeBattleship();
-		getOppFleet().clear(); // Empty Fleet
-		// Pick 4 ships
-		for (int i = 0; i<4; i++){
+	// Computer chooses ships randomly
+		private void createShipsRand() {
+			largeBattleship large = new largeBattleship();
+			mediumBattleship med = new mediumBattleship();
+			smallBattleship small = new smallBattleship();
+			getOppFleet().clear(); // Empty Fleet
+			// Pick 1 large Ship
+			for (int i=0; i<1; i++){	calculateShipPlacement(large);	}
+			// Pick 2 medium Ships
+			for (int i=0; i<2; i++){	calculateShipPlacement(med);	}
+			// Pick 2 small Ships
+			for (int i=0; i<2; i++){	calculateShipPlacement(small);	}
+		}
+		
+		private void calculateShipPlacement(ship theShip){
 			int x=0, y=0;
 			Random randPick = new Random();
 			int orientation = (Math.abs(randPick.nextInt(2)));
+			
 			if (orientation == 0){ // Horizontal Ships
-				x = (Math.abs(randPick.nextInt(20)));
-				y = (Math.abs(randPick.nextInt(26)));
-				for (int s = 0; s<hShip.getSize();s++){
-					hShip = new largeBattleship(x+s,y);
-					// search serverFleet for ship matching newShip
-					if (searchOppFleet(hShip)==false){
-						getOppFleet().add(hShip);
+				x = (Math.abs(randPick.nextInt(boardX-theShip.getSize())));
+				y = (Math.abs(randPick.nextInt(boardY)));
+				for (int i=0; i<theShip.getSize(); i++){
+					theShip = new ship(x+i,y, theShip.getSize());
+					// search oppFleet for ship matching theShip
+					if (searchOppFleet(theShip)==false && getOppFleet().size()<shipAmt){
+						ocean.getOppButton()[x+i][y].setBackground(Color.YELLOW);
+						getOppFleet().add(theShip);
 						}
 					}
 				}
-			else if (orientation == 1){ // Vertical Ships
-				x = (Math.abs(randPick.nextInt(26)));
-				y = (Math.abs(randPick.nextInt(20)));
-				for (int s = 0; s<vShip.getSize();s++){
-					vShip = new largeBattleship(x,y+s);
-					// search serverFleet for ship matching newShip
-					if (searchOppFleet(vShip)==false){
-						getOppFleet().add(vShip);
+			else{ // Vertical Ships
+				x = (Math.abs(randPick.nextInt(boardX)));
+				y = (Math.abs(randPick.nextInt(boardY-theShip.getSize())));
+				for (int i=0; i<theShip.getSize(); i++){
+					theShip = new ship(x,y+i, theShip.getSize());
+					// search oppFleet for ship matching theShip
+					if (searchOppFleet(theShip)==false&&getOppFleet().size()<shipAmt){
+						getOppFleet().add(theShip);
+						ocean.getOppButton()[x][y+i].setBackground(Color.YELLOW);
 					}
 				}
 			}
 		}
-//		Gui.println(getOppFleet().toString());
-	}
 
 	// Battle stage: Choose where to shoot, shoot there , get opponent shot, 
 	// do calculations, and continue in loop until win or lose.
 	private void battle() throws Throwable {	
+		Gui.println("Its time to battle!\nClick on opponents ocean to sink ships.");
 		setBattling(true);
 		// if host then listen
 		do{
 			MeShoot();
-			if((oppFleet.size()==0)||getMyShotList().size()==676){	close();	}
+			if((oppFleet.size()==0)||getMyShotList().size()==(boardX*boardY)){	close();	}
 ////////////////////////////// ~ ~ ~ ~ ~ Player : Computer Separation ~ ~ ~ ~ ~ //////////////////////////////
 			ComShoot();
-			if((fleet.size()==0)||oppShotList.size()==676){	close();	}
+			if((fleet.size()==0)||oppShotList.size()==(boardX*boardY)){	close();	}
 			// While opponents status is not an L, i haven't shot 10,000 times and the opponent hasn't shot 10,000 times.
 		}while(isBattling());
 	}
@@ -159,7 +188,8 @@ public class PvCom {
 	
 	private boolean checkComShot(Torpedo comCoor) {
 		// Has com shot this are yet?
-		if(ocean.getMyButton()[comCoor.getX()][comCoor.getY()].getBackground()==Color.CYAN){
+		if((ocean.getMyButton()[comCoor.getX()][comCoor.getY()].getBackground()==Color.CYAN) 
+				|| (ocean.getMyButton()[comCoor.getX()][comCoor.getY()].getBackground()==Color.YELLOW)){
 			return false;
 		}
 		return true;		
@@ -233,8 +263,8 @@ public class PvCom {
 	private Torpedo randShot(){
 		Torpedo myShot = new Torpedo();
 		Random randShot = new Random();
-		myShot.setX(randShot.nextInt(26));
-		myShot.setY(randShot.nextInt(26));
+		myShot.setX(randShot.nextInt(boardX));
+		myShot.setY(randShot.nextInt(boardY));
 		return myShot;
 	}
 
@@ -278,3 +308,4 @@ public class PvCom {
 		PvCom.shooting = shooting;
 	}	
 }
+

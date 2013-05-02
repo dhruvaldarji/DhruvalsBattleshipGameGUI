@@ -10,4 +10,8 @@ public class ship extends oceanObject{
 	public ship(String n, int x, int y, int s){
 		super(n,x,y,s);
 	}
+	
+	public ship(int x, int y, int s){
+		super("ship",x,y,s);
+	}
 }

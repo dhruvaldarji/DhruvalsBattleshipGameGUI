@@ -24,7 +24,7 @@ public class board extends JFrame implements ActionListener{
 		frame = new JFrame();
 		frame.setVisible(false);
 		frame.setBounds(0, 0, 1000, 500);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		try	{
 		      UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName());
@@ -64,57 +64,102 @@ public class board extends JFrame implements ActionListener{
 
 	public void actionPerformed(ActionEvent e) {
 		String msg = e.getActionCommand();
-		JButton b = (JButton) e.getSource();
+		
 		if(msg.equalsIgnoreCase("Exit")){
 			try {
 				frame.dispose();
+				System.exit(0);
 			} catch (Throwable e1) {}
 		}else if(selectingShips==true){
-			if (b.getName().startsWith("Me")){
-//				Gui.println("Button: "+b.getName());
-				b.setBackground(Color.YELLOW);
-				String[] shipCoor = b.getName().trim().split(",");
-				int x = Integer.parseInt(shipCoor[1]);
-				int y = Integer.parseInt(shipCoor[2]);
-				largeBattleship ship = new largeBattleship(x,y);
-				
-				switch (Gui.getGameType()){
-				case 1:
-					if (ComvCom.searchFleet(ship)==false){
-						ComvCom.getFleet().add(ship);
-					Gui.println(ComvCom.getFleet().size());
-					}
-					break;
-				case 2:
-					if (PvCom.searchFleet(ship)==false){
-						PvCom.getFleet().add(ship);
-					Gui.println(PvCom.getFleet().size());
-					}
-					break;
-				case 3:
-					if (PvP.searchFleet(ship)==false){
-						PvP.getFleet().add(ship);
-					Gui.println(PvP.getFleet().size());
-					}
-					break;
+			JButton b = (JButton) e.getSource();
+			b.setBackground(Color.YELLOW);
+			String[] shipCoor = b.getName().trim().split(",");
+			int x = Integer.parseInt(shipCoor[1]);
+			int y = Integer.parseInt(shipCoor[2]);
+			largeBattleship ship = new largeBattleship(x,y);
+			
+			switch (Gui.getGameType()){
+			case 1:
+				if (ComvCom.searchFleet(ship)==false){
+					ComvCom.getFleet().add(ship);
+				Gui.println(ComvCom.getFleet().size());
 				}
+				break;
+			case 2:
+				if (PvCom.searchFleet(ship)==false){
+					PvCom.getFleet().add(ship);
+				Gui.println(PvCom.getFleet().size());
+				}
+				break;
+			case 3:
+				if (PvP.searchFleet(ship)==false){
+					PvP.getFleet().add(ship);
+				Gui.println(PvP.getFleet().size());
+				}
+				break;
 			}
 		}
 		else if(PvCom.isBattling() == true){
+			JButton b = (JButton) e.getSource();
 			String[] messageCoor = b.getName().trim().split(",");
-			String s = messageCoor[0];
 			int x = Integer.parseInt(messageCoor[1]);
 			int y = Integer.parseInt(messageCoor[2]);
-			Torpedo coor = new Torpedo(s,y,x);
+			Torpedo coor = new Torpedo("O",x,y);
 			PvCom.getMyShotList().add(coor);
 			PvCom.checkOppFleet(coor);
 			enableOppBoard(false);
 			PvCom.setShooting(false);
 		}
+		revalidate();
+		repaint();
 	}
 
+//	make and add my buttons
+	void addMyButtons(){
+		 setMyButton(new JButton[boardY][boardX]);
+		 for (int row = 0; row < boardY; row++){
+	        	for (int col = 0; col < boardX; col++){
+	        		// creates a new button. 
+	        		getMyButton()[col][row] = new JButton("");
+	        		getMyButton()[col][row].setName("Me,"+col+","+row);
+	        		getMyButton()[col][row].setBackground(Color.CYAN);
+	        		if (Gui.getGameType()==1){
+	        			getMyButton()[col][row].setBorderPainted(false);
+	        		}
+	        		else{
+	        			getMyButton()[col][row].setBorderPainted(true);
+	        		}
+	                getMyButton()[col][row].setLocation(col, row);
+	                getMyButton()[col][row].addActionListener(this);
+	                myPanel.add(getMyButton()[col][row]); // Add the button to the frame.
+	                }
+	        	}
+		 }
+	
+//	make and add opp buttons
+	void addOppButtons(){
+		 setOppButton(new JButton[boardY][boardX]);
+		 for (int row = 0; row < boardY; row++){
+	        	for (int col = 0; col < boardX; col++){
+	        		// creates a new button. 
+	        		getOppButton()[col][row] = new JButton("");
+	        		getOppButton()[col][row].setName("Opp,"+col+","+row);
+	        		getOppButton()[col][row].setBackground(Color.CYAN);
+	        		if (Gui.getGameType()==1){
+	        			getOppButton()[col][row].setBorderPainted(false);
+	        		}
+	        		else{
+	        			getOppButton()[col][row].setBorderPainted(true);
+	        		}
+	                getOppButton()[col][row].setLocation(col, row);
+	                getOppButton()[col][row].addActionListener(this);
+	                oppPanel.add(getOppButton()[col][row]); // Add the button to the frame.
+	            }
+	        }
+		}
 
-public static JFrame getFrame() {
+
+	public static JFrame getFrame() {
 		return frame;
 	}
 
@@ -122,7 +167,7 @@ public static JFrame getFrame() {
 		board.frame = frame;
 	}
 
-	public static JPanel getMyPanel() {
+	public JPanel getMyPanel() {
 		return myPanel;
 	}
 
@@ -130,7 +175,7 @@ public static JFrame getFrame() {
 		board.myPanel = myPanel;
 	}
 
-	public static JPanel getOppPanel() {
+	public JPanel getOppPanel() {
 		return oppPanel;
 	}
 
@@ -153,50 +198,12 @@ public static JFrame getFrame() {
 	public static void setOppButton(JButton[][] oppButton) {
 		board.oppButton = oppButton;
 	}
-
-//	make and add my buttons
-	void addMyButtons(){
-		 setMyButton(new JButton[boardY][boardX]);
-		 for (int row = 0; row < boardY; row++){
-	        	for (int col = 0; col < boardX; col++){
-	        		// creates a new button. 
-	        		getMyButton()[col][row] = new JButton("");
-	        		getMyButton()[col][row].setName("Me,"+row+","+col);
-	        		getMyButton()[col][row].setBackground(Color.CYAN);
-	        		getMyButton()[col][row].setBorderPainted(false);
-	                getMyButton()[col][row].setLocation(col, row);
-	                getMyButton()[col][row].addActionListener(this);
-	                myPanel.add(getMyButton()[col][row]); // Add the button to the frame.
-	                }
-	        	}
-		 }
 	
-//	make and add opp buttons
-	void addOppButtons(){
-		 setOppButton(new JButton[boardY][boardX]);
-		 for (int row = 0; row < boardY; row++){
-	        	for (int col = 0; col < boardX; col++){
-	        		// creates a new button. 
-	        		getOppButton()[col][row] = new JButton("");
-	        		getOppButton()[col][row].setName("Opp,"+row+","+col);
-	        		getOppButton()[col][row].setBackground(Color.CYAN);
-	        		getOppButton()[col][row].setBorderPainted(false);
-	                getOppButton()[col][row].setLocation(col, row);
-	                getOppButton()[col][row].addActionListener(this);
-	                oppPanel.add(getOppButton()[col][row]); // Add the button to the frame.
-	                }
-	        	}
-		 }
-
 	public void setVisible(boolean b){	frame.setVisible(b);	}
 	
 	public boolean isVisible(){	return frame.isVisible();	}
 	
 	public void setBound(int x, int y){	frame.setLocation(x,y);	}
-	
-	public int getBoundX() {	return (int)frame.getLocation().getX();	}
-	
-	public int getBoundY() {	return (int)frame.getLocation().getY();	}
 
 	public void enableMyBoard(Boolean b) {
 		for (int row = 0; row < boardX; row++){
@@ -212,7 +219,9 @@ public static JFrame getFrame() {
         	for (int col = 0; col < boardY; col++){
         		// enable or disable buttons.
         		if(b == true){
-        			if (getOppButton()[col][row].getBackground() == (Color.CYAN)){
+        			if (getOppButton()[col][row].getBackground() == (Color.CYAN)
+        					||
+        					getOppButton()[col][row].getBackground() == (Color.YELLOW)){
         				getOppButton()[col][row].setEnabled(true);
         			}
         		}

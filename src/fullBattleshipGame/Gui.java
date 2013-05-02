@@ -64,8 +64,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			}
 		}
 		start = false;
-		getContentPane().validate();
-		getContentPane().repaint();
+		revalidate();
+		repaint();
 	}
 
 	private void mainScreen(){
@@ -288,8 +288,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			isPvCom = true;
 			start = true;
 		}
-		getContentPane().validate();
-		getContentPane().repaint();
+		revalidate();
+		repaint();
 	}
 	
 	private void StartGame() throws Throwable {

@@ -48,7 +48,16 @@ public class Torpedo {
 	}
 	
 	public boolean equals(Torpedo coor){
-		if((this.getX()== coor.getX()) && (this.getY() == coor.getY())){
+		if (this.getX()==coor.getX()
+				&& this.getY()==coor.getY()){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean equals(oceanObject o){
+		if (this.getX()==o.getX()
+				&& this.getY()==o.getY()){
 			return true;
 		}
 		return false;
