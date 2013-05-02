@@ -151,7 +151,7 @@ public class PvP {
 		}
 	
 	// Check if ship exist in fleet already
-	boolean searchFleet(ship newShip) {
+	static boolean searchFleet(ship newShip) {
 		for (int i = 0; i<fleet.size(); i++){
 			if (fleet.get(i).getX() == newShip.getX()
 					&& 
@@ -340,5 +340,9 @@ public class PvP {
 		while(newCoor.getY()<0){	newCoor.setY(newCoor.getY()+1);	}
 		while(newCoor.getY()>99){	newCoor.setY(newCoor.getY()-1);	}
 		return newCoor;
+	}
+
+	public static ArrayList<ship> getFleet() {
+		return fleet;
 	}
 }

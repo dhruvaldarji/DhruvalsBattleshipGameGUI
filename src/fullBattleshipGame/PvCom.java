@@ -1,24 +1,24 @@
 package fullBattleshipGame;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-
-
 public class PvCom {
 	
-	private static ArrayList<ship> fleet = new ArrayList<ship>();
-	private static ArrayList<Torpedo> oppShotList = new ArrayList<Torpedo>();
-	private static ArrayList<Torpedo> myShotList = new ArrayList<Torpedo>();
+	// My game board
 	private static board ocean;
-	private static Connection socket;
-	@SuppressWarnings("unused")
-	private static boolean settingShip = false;
-	// The following deal with focused shots against the opponent.
-	private boolean shipFound = false, right = false, down = false, left = false, up = false;
-	private int dir = 0, rightCount = 0, downCount = 0, leftCount = 0, upCount = 0;
-	private Torpedo specialShot = null;
+	
+	// My various ArrayLists that track ships and shots
+	private static ArrayList<ship> fleet = new ArrayList<ship>(); // -----ArrayList
+	private static ArrayList<ship> oppFleet = new ArrayList<ship>(); // -----ArrayList
+	private ArrayList<Torpedo> oppShotList = new ArrayList<Torpedo>(); // -----ArrayList
+	private static ArrayList<Torpedo> myShotList = new ArrayList<Torpedo>(); // -----ArrayList
+	
+	// The following deal with shooting and focused shots against the opponent.
+	private Torpedo coor = new Torpedo("M",0,0);
+	private static boolean battling=false, shooting = false;
 	
 	public PvCom() throws Throwable{
 		init();
@@ -26,45 +26,60 @@ public class PvCom {
 		
 	// Initialize the game
 	private void init() throws Throwable {
+		// Make a new game board with 100x100 buttons
 		ocean = new board(26,26);
-		getFleet().clear();
+		// Empty my shot list
+		getMyShotList().clear();
+		// Empty opponents shot list
 		oppShotList.clear();
-		myShotList.clear();
-		specialShot = new Torpedo();
-		
+		// Game is ready to play, show the board
 		ocean.setVisible(true);
+		// Print my game information ip and port
 		}
 	
 	// Run the game
-	public void run(String h, int p) throws Throwable {
-		
-		chooseShips(); // human
-//		createShipsRand(); // computer
-		
-		socket = new Connection(h, p);
-		
+	public void run() throws Throwable {
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
+		
+		chooseShips(); // User selects ships
+		createShipsRand(); // Computer randomly generates ships
+				
 		battle();
-//			Gui.println("opp: "+myShotList.toString());
-//			Gui.println("me: "+oppShotList.toString());
-		Gui.println("Shots Made: "+myShotList.size());
-		close();
+//		Gui.println("opp: "+myShotList.toString()); // view opponents shotlist
+//		Gui.println("me: "+oppShotList.toString()); // view my shotlist
 		}
 	
 	//Close the game
-	private static void close() throws Throwable {
-		// wait 3 seconds and then close;
-		try {	socket.close();	Thread.sleep(3000);	}	catch (Throwable e) {}
-		ocean.setVisible(false);
-	}
+	private void close() throws Throwable {
+		// Determine winner
+		setBattling(false);
+		if((getFleet().size()==0)){	
+			Gui.println("You lost, all of your ships have been sunk!");
+			Gui.println("You lost in "+oppShotList.size()+" shots.");
+			Gui.println("You shot "+getMyShotList().size()+" shots.");
+		}
+		else if((getOppFleet().size()==0)){	
+			Gui.println("You Win, all of the opponents ships have been sunk!");
+			Gui.println("You took "+getMyShotList().size()+" shots.");
+			Gui.println("Opponent shot "+oppShotList.size()+" shots.");
+
+		}
+		else if(getMyShotList().size()==676){	Gui.println("You lost, you shot 676 times!");	}
+		else if(oppShotList.size()==676){	Gui.println("You Win, opponent shot 676 times!");	}
+		else Gui.println("Could not determine winner.");
+		
+		// Close the socket connection
+		try {	Thread.sleep(3000);	}	catch (Throwable e) {}
+		}
 	
+	// Choose where to put ships
 	private void chooseShips() {
-		Gui.println("Choose 16 ships");
+		Gui.println("Choose 24 ships");
 		do{
 			ocean.enableMyBoard(true);
 			ocean.selectingShips = true;
-		}while(getFleet().size()<16);
+		}while(getFleet().size()<24);
 		ocean.setVisible(false);
 		ocean.enableMyBoard(false);
 		ocean.selectingShips = false;
@@ -72,283 +87,194 @@ public class PvCom {
 		ocean.setVisible(true);
 	}
 	
-	// Computer chooses ships.
-	@SuppressWarnings("unused")
+	// Computer chooses ships randomly
 	private void createShipsRand() {
 		largeBattleship hShip = new largeBattleship();
 		largeBattleship vShip = new largeBattleship();
-
-		getFleet().clear();
-		for (int i = 0; i<6; i++){
+		getOppFleet().clear(); // Empty Fleet
+		// Pick 4 ships
+		for (int i = 0; i<4; i++){
 			int x=0, y=0;
 			Random randPick = new Random();
-			x = (Math.abs(randPick.nextInt())%94);
-			while(x<1 || x>100){
-				x = (Math.abs(randPick.nextInt())%94);
-			}
-			y = (Math.abs(randPick.nextInt())%94);
-			while(y<1 || y>100){
-				y = (Math.abs(randPick.nextInt())%94);
-			}
-			largeBattleship lShip = new largeBattleship(x,y);
-			int orientation = (Math.abs(randPick.nextInt())%2);
+			int orientation = (Math.abs(randPick.nextInt(2)));
 			if (orientation == 0){ // Horizontal Ships
-				for (int s = 0; s<lShip.getSize();s++){
-					hShip = new largeBattleship(lShip.getX()+s,lShip.getY());
+				x = (Math.abs(randPick.nextInt(20)));
+				y = (Math.abs(randPick.nextInt(26)));
+				for (int s = 0; s<hShip.getSize();s++){
+					hShip = new largeBattleship(x+s,y);
 					// search serverFleet for ship matching newShip
-					if (searchFleet(hShip)==false){
-						getFleet().add(hShip);
-						ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.yellow);
+					if (searchOppFleet(hShip)==false){
+						getOppFleet().add(hShip);
 						}
 					}
 				}
 			else if (orientation == 1){ // Vertical Ships
-				for (int s = 0; s<lShip.getSize();s++){
-					vShip = new largeBattleship(lShip.getX(),lShip.getY()+s);
+				x = (Math.abs(randPick.nextInt(26)));
+				y = (Math.abs(randPick.nextInt(20)));
+				for (int s = 0; s<vShip.getSize();s++){
+					vShip = new largeBattleship(x,y+s);
 					// search serverFleet for ship matching newShip
-					if (searchFleet(vShip)==false){
-						ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.yellow);
-						getFleet().add(vShip);
+					if (searchOppFleet(vShip)==false){
+						getOppFleet().add(vShip);
 					}
 				}
 			}
 		}
+//		Gui.println(getOppFleet().toString());
 	}
 
-	// Battle stage: Choose where to shoot, shoot, get opponent shot, 
+	// Battle stage: Choose where to shoot, shoot there , get opponent shot, 
 	// do calculations, and continue in loop until win or lose.
-	private void battle() throws Throwable {
-		Torpedo coor = new Torpedo();
-		Torpedo oppCoor = new Torpedo();
-		String oppStatus = "m";
-		String myStatus = "m";
-		try {
-			do{
-				// finds the next Shot
-				coor = findNextShot(coor, oppStatus);
-				coor.setStatus(myStatus);
-				// Send coordinate
-				if (!oppStatus.equalsIgnoreCase("L")) socket.sendMessage(coor.toString());
-				///////////////////Player : Opponent Separation///////////////////
-				// check opponent coordinate
-				if (!myStatus.equalsIgnoreCase("L")) oppCoor = socket.getMessage();
-				oppStatus = oppCoor.getStatus();
-				updateOppBoard(oppStatus, coor);
-				
-				if (oppStatus.equalsIgnoreCase("L"))	break;
-				
-				//check for hit/miss
-				else if (checkShot(oppCoor)==false){	
-					myStatus = checkFleet(oppCoor);
-					// check if all ships have been destroyed
-					if(getFleet().isEmpty()==true) myStatus = "L";
-				}
-								
-				}while(!myStatus.equalsIgnoreCase("L")|| !(oppStatus.equalsIgnoreCase("L")) || (myShotList.size()!=10000));
-			} catch (Throwable e) {}
-		finally{	
-			if (getFleet().isEmpty()==true || myShotList.size()==10000){	Gui.println("\nYou Lose. Shame on you socket!");	}
-			else if (oppStatus.equalsIgnoreCase("L")){	Gui.println("\nYou're a Winner socket!");	}
-			}
+	private void battle() throws Throwable {	
+		setBattling(true);
+		// if host then listen
+		do{
+			MeShoot();
+			if((oppFleet.size()==0)||getMyShotList().size()==676){	close();	}
+////////////////////////////// ~ ~ ~ ~ ~ Player : Computer Separation ~ ~ ~ ~ ~ //////////////////////////////
+			ComShoot();
+			if((fleet.size()==0)||oppShotList.size()==676){	close();	}
+			// While opponents status is not an L, i haven't shot 10,000 times and the opponent hasn't shot 10,000 times.
+		}while(isBattling());
+	}
+
+	private void MeShoot() throws IOException, InterruptedException {
+		// Activate OppBoard for a shot
+		ocean.enableOppBoard(true); // Enable buttons so that we can click on them
+		setShooting(true); // let the game know that we are shooting
+		
+		while(isShooting() == true){
+			Thread.sleep(10);
 		}
+	}
 	
-	// Check if ship exist in fleet already
-	private boolean searchFleet(ship newShip) {
-		for (int i = 0; i<getFleet().size(); i++){
-			if (getFleet().get(i).getX() == newShip.getX()
+	private void ComShoot() throws ClassNotFoundException, IOException, InterruptedException {
+		coor = randShot();
+		while (checkComShot(coor)==true){
+			coor=randShot();
+		}
+		oppShotList.add(coor);
+		checkFleet(coor);
+	}
+	
+	private boolean checkComShot(Torpedo comCoor) {
+		// Has com shot this are yet?
+		if(ocean.getMyButton()[comCoor.getX()][comCoor.getY()].getBackground()==Color.CYAN){
+			return false;
+		}
+		return true;		
+	}
+
+	// Check if ship exist in fleet already, if true then ship should not be placed.
+	static boolean searchOppFleet(ship newShip) {
+		for (int i = 0; i<getOppFleet().size(); i++){
+			if (getOppFleet().get(i).getX() == newShip.getX()
 					&& 
-					getFleet().get(i).getY() == newShip.getY()){
+					getOppFleet().get(i).getY() == newShip.getY()){
 				return true;
 				}
 			}
 		return false;
+	}
+	// Check if ship exist in fleet already, if true then ship should not be placed.
+		static boolean searchFleet(ship newShip) {
+			for (int i = 0; i<getFleet().size(); i++){
+				if (getFleet().get(i).getX() == newShip.getX()
+						&& 
+						getFleet().get(i).getY() == newShip.getY()){
+					return true;
+					}
+				}
+			return false;
 		}
 	
 	// Check if coordinate is a hit or miss
-	String checkFleet(Torpedo serverCoor){
-		// Check if coordinate is a ship
-		Torpedo shot = new Torpedo(serverCoor.getStatus(),serverCoor.getX(),serverCoor.getY());
-		// add coordinate to shots list
-		oppShotList.add(shot);
-		for (int i = 0; i<getFleet().size(); i++){
-			if (getFleet().get(i).getX() == serverCoor.getX()
-					&& 
-					getFleet().get(i).getY() == serverCoor.getY()){
-				ocean.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.red);
-				getFleet().remove(i);
-				return"h";
-				}
-			else {	ocean.getMyButton()[serverCoor.getX()][serverCoor.getY()].setBackground(Color.blue);	}
-			}
-		return "m";
-		}
+	private void checkFleet(Torpedo oppCoor){
 	
-	// Check if the coordinate has already been shot
-	private boolean checkShot(Torpedo coor){
-		// check if coordinate has already been shot
-		for (int i = 0; i<oppShotList.size(); i++){
-			if (oppShotList.get(i).getX() == coor.getX()
-					&& 
-					oppShotList.get(i).getY() == coor.getY()){
-				return true; // coordinate already shot
-				}
-			}
-		return false; // coordinate not shot
+	// Check if coordinate is a ship
+		if (ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].getBackground()==Color.YELLOW){
+			// Ships is in fleet, change color to red
+			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.RED);
+			removeFromFleet(oppCoor);
 		}
+		else {	
+			// Shot missed, change color to blue
+			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);	
+		}
+	}
 	
-	// Update opponent's board.
-	private void updateOppBoard(String oppStatus, Torpedo coor) {
-		if (oppStatus.equalsIgnoreCase("H")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.red);	}
-		else if (oppStatus.equalsIgnoreCase("M")) {	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.blue);	}
-		else {	/* if oppStatus  is L do Nothing*/	}
+	// Check if coordinate is a hit or miss
+	public static void checkOppFleet(Torpedo coor){
+	// Check if coordinate is a ship
+		for (int i = 0; i<getOppFleet().size(); i++){
+			if (getOppFleet().get(i).equals(coor)){
+				getOppFleet().remove(i);
+				// Ships is in fleet, change color to red
+				ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);
+				Gui.println(coor.toString()+" is a HIT");
+				return;
+			}	
+		}
+		// Shot missed, change color to blue
+		ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.BLUE);
+		Gui.println(coor.toString()+" is a MISS");
 	}
 
-	// Find the next place to shoot
-	private Torpedo findNextShot(Torpedo coor, String status){
-		//get coordinate to attack (3 DIFFERENT WAYS!!!,  magicShot2 and randShot, or user choice
-		
-		// for magicShots
-		if ((status.equalsIgnoreCase("H")&&(shipFound == false))||(shipFound == true)){	coor = magicShots(coor, status);	}	
-		
-		//for normal shots
-		else {
-			coor = randShot(); // randomly generated coordinate
+	// Remove the ship with matching coordinates from the fleet.
+	private void removeFromFleet(Torpedo coor) {
+		for (int i = 0; i<fleet.size(); i++){
+			if (fleet.get(i).equals(coor)){
+				fleet.remove(i);
+			}
 		}
-		// make sure that the shot isn't out of bounds
-		if(coor.getX()<0||coor.getX()>99){	coor = tryNewX(coor);	}
-		if(coor.getY()<0||coor.getY()>99){	coor = tryNewY(coor);	}
-		
-		return coor;
 	}
-	
+
 	// Find random coordinate to shoot
 	private Torpedo randShot(){
-		dir = 0;
 		Torpedo myShot = new Torpedo();
 		Random randShot = new Random();
-		myShot.setX(randShot.nextInt(100));
-		myShot.setY(randShot.nextInt(100));
-		myShotList.add(myShot);
+		myShot.setX(randShot.nextInt(26));
+		myShot.setY(randShot.nextInt(26));
 		return myShot;
-	}
-	
-	// Hone in on a hit ship. Version 2
-	private Torpedo magicShots(Torpedo coor, String status){
-		Torpedo magicShot = new Torpedo();
-		magicShot = new Torpedo(specialShot.getX(),specialShot.getY());
-		if (shipFound == false && status.equalsIgnoreCase("h")){
-			shipFound = true;	dir = 0;
-			specialShot = new Torpedo(coor.getX(), coor.getY());
-			magicShot = new Torpedo(specialShot.getX(),specialShot.getY());
-		}	
-		// shoot in all directions
-		if (dir<4 && right == false && down == false && left == false && up == false){
-			switch(dir){
-			case 0: // shoot right of the coordinate
-				magicShot.setX(specialShot.getX()+1);
-				myShotList.add(magicShot);
-				dir++;
-				return magicShot;
-			case 1:	// if shooting below the coordinate was a hit, then do downShots
-				if (status.equalsIgnoreCase("H")){	 right = true; dir++; break;	}
-				else{
-					// shoot below the coordinate
-					magicShot.setY(specialShot.getY()+1);
-					myShotList.add(magicShot);
-					dir++;
-				}
-				return magicShot;
-			case 2: // if shooting right of coordinate was a hit, then do rightShots
-				if(status.equalsIgnoreCase("H")){	down = true; dir++; break;	}
-				else {
-					// shoot left of the coordinate
-					magicShot.setX(specialShot.getX()-1);
-					myShotList.add(magicShot);
-					dir++;
-				}
-				return magicShot;
-			case 3: // if shooting left of coordinate was a hit, then do leftShots
-				if (status.equalsIgnoreCase("H")){	left = true; dir++; break;	}
-				else{
-					// shoot above the coordinate
-					magicShot.setY(specialShot.getY()-1);
-					myShotList.add(magicShot);
-					dir++;
-				}
-				return magicShot;
-			case 4: // if shooting above the coordinate was a hit, do upShots
-				if(status.equalsIgnoreCase("H")){	up = true; dir++; break;	}
-				}
-			}
-		// Determine what ship has been found and shoot accordingly.
-		if (right == true){
-			if(rightCount<12){
-				magicShot.setX(specialShot.getX()-rightCount+5);
-				rightCount++;
-				myShotList.add(magicShot);
-				return magicShot;
-			}
-			right = false;
-			rightCount = 0;
-		}
-		else if (down == true){
-			if(downCount<12){
-				magicShot.setY(specialShot.getY()-downCount+5);	
-				downCount++;
-				myShotList.add(magicShot);
-				return magicShot;
-			}
-			down = false;
-			downCount = 0; 
-		}
-		else if (left == true){
-			if(leftCount<5){
-				magicShot.setX(specialShot.getX()-5+leftCount);
-				leftCount++;
-				myShotList.add(magicShot);
-				return magicShot;
-			}
-			left = false;
-			leftCount = 0;
-		}
-		else if (up == true){
-			if(upCount <5){
-				magicShot.setY(specialShot.getY()-5+upCount);
-				upCount++;
-				myShotList.add(magicShot);
-				return magicShot;
-			}
-			up = false;
-			upCount = 0;
-		}
-		else {
-			magicShot = randShot(); // randomly generated coordinate
-		}
-		myShotList.add(magicShot);
-		return magicShot;
-	}
-		
-//		Increment or Decrement the X so that it doesn't go out of bounds
-	private Torpedo tryNewX(Torpedo coor){
-		Torpedo newCoor = new Torpedo(coor.getX(), coor.getY());
-		while(newCoor.getX()<0){	newCoor.setX(newCoor.getX()+1);	}
-		while(newCoor.getX()>99){	newCoor.setX(newCoor.getX()-1);	}
-		return newCoor;
-	}
-	
-//		Increment or Decrement the Y so that it doesn't go out of bounds
-	private Torpedo tryNewY(Torpedo coor){
-		Torpedo newCoor = new Torpedo(coor.getStatus(), coor.getX(), coor.getY());
-		while(newCoor.getY()<0){	newCoor.setY(newCoor.getY()+1);	}
-		while(newCoor.getY()>99){	newCoor.setY(newCoor.getY()-1);	}
-		return newCoor;
 	}
 
 	public static ArrayList<ship> getFleet() {
 		return fleet;
 	}
 
-	public static void setFleet(ArrayList<ship> fleet) {
+	public void setFleet(ArrayList<ship> fleet) {
 		PvCom.fleet = fleet;
 	}
+
+	public static ArrayList<ship> getOppFleet() {
+		return oppFleet;
+	}
+
+	public static void setOppFleet(ArrayList<ship> oppFleet) {
+		PvCom.oppFleet = oppFleet;
+	}
+
+	public static boolean isBattling() {
+		return battling;
+	}
+
+	public void setBattling(boolean battling) {
+		PvCom.battling = battling;
+	}
+
+	public static ArrayList<Torpedo> getMyShotList() {
+		return myShotList;
+	}
+
+	public void setMyShotList(ArrayList<Torpedo> myShotList) {
+		PvCom.myShotList = myShotList;
+	}
+
+	public static boolean isShooting() {
+		return shooting;
+	}
+
+	public static void setShooting(boolean shooting) {
+		PvCom.shooting = shooting;
+	}	
 }

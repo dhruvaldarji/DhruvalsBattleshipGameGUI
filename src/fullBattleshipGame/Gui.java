@@ -22,14 +22,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	private static final long serialVersionUID = 1L;
 	
 	private JPanel guiPanel, mainPanel, gamePanel, choicePanel, hostPanel, joinPanel, startPanel, messagePanel;
-	JTextField hostPort, joinPort, server;
+	private JTextField hostPort, joinPort, server;
 	static JTextArea console;
-	String s = "localhost";
-	int p = 13000;
-	static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
-	int hostOrClient = 0; // if 1 then host , if 2 then client
-	boolean inGame = false;
-	boolean start = false;
+	private String s = "localhost";
+	private int p = 13000;
+	private static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
+	private int hostOrClient = 0; // if 1 then host , if 2 then client
+	private boolean start = false, isPvCom = false;
 	
 	Gui() throws Throwable{
 		super("Dhruval's Battleship Game");
@@ -41,7 +40,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		gameTypeScreen();
 		joinScreen();
 		hostScreen();	
-		startScreen();
+		PvComStartScreen();
 		messageBox();		
 		// set Exit solution
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -65,12 +64,11 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			}
 		}
 		start = false;
-		inGame = false;
 		getContentPane().validate();
 		getContentPane().repaint();
 	}
 
-	void mainScreen(){
+	private void mainScreen(){
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new FlowLayout());
 		
@@ -90,7 +88,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		
 	}
 	
-	void gameTypeScreen(){
+	private void gameTypeScreen(){
 		gamePanel = new JPanel();
 		gamePanel.setLayout(new FlowLayout());
 		
@@ -104,7 +102,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		pvp.addActionListener(this);	
 		menu.addActionListener(this);
 		
-		pvc.setEnabled(false); // Under Construction
+//		pvc.setEnabled(false); // Under Construction
 		pvp.setEnabled(false); // Under Construction
 		
 		gamePanel.add(com);
@@ -113,7 +111,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		gamePanel.add(menu);
 	}
 	
-	void gameChoice(){
+	private void gameChoice(){
 		choicePanel = new JPanel();
 		choicePanel.setLayout(new FlowLayout());
 		
@@ -131,7 +129,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		choicePanel.add(gameTypeMenu);
 	}
 	
-	void hostScreen(){
+	private void hostScreen(){
 		hostPanel = new JPanel();
 		hostPanel.setLayout(new FlowLayout());
 		
@@ -152,7 +150,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		
 	}
 	
-	void joinScreen(){
+	private void joinScreen(){
 		joinPanel = new JPanel();
 		joinPanel.setLayout(new FlowLayout());
 		
@@ -176,12 +174,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		joinPanel.add(hostJoin);	
 	}
 	
-	void startScreen(){
+	private void PvComStartScreen(){
 		startPanel = new JPanel();
 		startPanel.setLayout(new FlowLayout());
 		
 		JButton startPvCom = new JButton("Start a PvCom");
 		JButton menu = new JButton("Menu");
+		
 		menu.addActionListener(this);
 		startPvCom.addActionListener(this);
 		
@@ -189,9 +188,9 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		startPanel.add(menu);
 	}
 	
-	void messageBox(){
+	private void messageBox(){
 		messagePanel = new JPanel();
-		messagePanel.setLayout(new FlowLayout());
+//		messagePanel.setLayout(new FlowLayout());
 		
 		console = new JTextArea("Welcome to Dhruval's Battleship Game\n");
 		console.setBorder(new TitledBorder(new EtchedBorder(), "Headquarters"));
@@ -211,7 +210,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
-				
 		String msg = arg0.getActionCommand();
 		if(msg.equalsIgnoreCase("Battle")){
 			guiPanel.removeAll();
@@ -228,17 +226,17 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		else if (msg.equalsIgnoreCase("Com vs. Com")){
 			guiPanel.removeAll();
 			guiPanel.add(choicePanel);
-			gameType = 1;
+			setGameType(1);
 		}
 		else if (msg.equalsIgnoreCase("Player vs. Com")){
 			guiPanel.removeAll();
 			guiPanel.add(startPanel);
-			gameType = 2;
+			setGameType(2);
 		}
 		else if (msg.equalsIgnoreCase("Player vs Player")){
 			guiPanel.removeAll();
 			guiPanel.add(choicePanel);
-			gameType = 3;
+			setGameType(3);
 		}
 		else if (msg.equalsIgnoreCase("Menu")){
 			guiPanel.removeAll();
@@ -267,7 +265,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 				p = Integer.parseInt(hostPort.getText());
 			hostPort.setText("");
 			println(msg+": "+p);
-			inGame = true;
 			guiPanel.removeAll();
 			guiPanel.add(mainPanel);
 			start = true;
@@ -281,69 +278,73 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			server.setText("");
 			joinPort.setText("");
 			println(msg+": "+s+", "+p);
-			inGame = true;	
 			guiPanel.removeAll();
 			guiPanel.add(mainPanel);
 			start = true;
 		}
-		else if(msg.equalsIgnoreCase("Start a PvCom")){	}
+		else if(msg.equalsIgnoreCase("Start a PvCom")){
+			guiPanel.removeAll();
+			guiPanel.add(mainPanel);
+			isPvCom = true;
+			start = true;
+		}
 		getContentPane().validate();
 		getContentPane().repaint();
 	}
 	
 	private void StartGame() throws Throwable {
-		if (inGame = true){
+		if (start = true){
+			if(isPvCom == true){
+				inHostGame();
+			}
 			if (hostOrClient == 1){
 				inHostGame();
 			}
 			if (hostOrClient == 2){
 				inClientGame();
 			}
+			
 		}
 	}
 
 	private void inHostGame() throws Throwable {
-		switch (gameType){
+		switch (getGameType()){
 		case 1:
+			start = false;
 			ComvCom g1 = new ComvCom();
 			g1.run(null, p);
-			start = false;
-			inGame = false;
 			break;
 		case 2:
-			PvCom g2 = new PvCom();
-			g2.run(null, p);
+			isPvCom = false;
 			start = false;
-			inGame = false;
+			PvCom g2 = new PvCom();
+			g2.run();
 			break;
 		case 3:
+			start = false;
 			PvP g3 = new PvP();
 			g3.run(null, p);
-			start = false;
-			inGame = false;
 			break;
 		}
 	}
 	
 	private void inClientGame() throws Throwable{
-		switch (gameType){
+		switch (getGameType()){
 		case 1:
+			start = false;
 			ComvCom g1 = new ComvCom();
 			g1.run(s, p);
-			start = false;
-			inGame = false;
 			break;
 		case 2:
-			PvCom g2 = new PvCom();
-			g2.run(s, p);
+			isPvCom = false;
 			start = false;
-			inGame = false;
+			PvCom g2 = new PvCom();
+			g2.run();
 			break;
 		case 3:
+			start = false;
 			PvP g3 = new PvP();
 			g3.run(s, p);
-			start = false;
-			inGame = false;
 			break;
 		}
 	}
@@ -360,5 +361,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		// dispose the frame
 		dispose();
 		System.exit(0);
+	}
+
+	public static int getGameType() {
+		return gameType;
+	}
+
+	public static void setGameType(int gameType) {
+		Gui.gameType = gameType;
 	}
 }

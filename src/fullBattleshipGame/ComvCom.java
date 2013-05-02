@@ -13,8 +13,6 @@ public class ComvCom {
 	
 	// My game board
 	private static board ocean;
-	@SuppressWarnings("unused")
-	private static boolean settingShip = false;
 	
 	// My various ArrayLists that track ships and shots
 	private static ArrayList<ship> fleet = new ArrayList<ship>(); // -----ArrayList
@@ -131,7 +129,7 @@ public class ComvCom {
 			else if (orientation == 1){ // Vertical Ships
 				x = (Math.abs(randPick.nextInt(100)));
 				y = (Math.abs(randPick.nextInt(94)));
-				for (int s = 0; s<6;s++){
+				for (int s = 0; s<vShip.getSize();s++){
 					vShip = new largeBattleship(x,y+s);
 					// search serverFleet for ship matching newShip
 					if (searchFleet(vShip)==false){
@@ -193,7 +191,7 @@ public class ComvCom {
 	}
 	
 	// Check if ship exist in fleet already, if true then ship should not be placed.
-	private boolean searchFleet(ship newShip) {
+	static boolean searchFleet(ship newShip) {
 		for (int i = 0; i<getFleet().size(); i++){
 			if (getFleet().get(i).getX() == newShip.getX()
 					&& 

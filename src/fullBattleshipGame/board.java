@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,8 +16,7 @@ public class board extends JFrame implements ActionListener{
 	private static JFrame frame;
 	private static JPanel myPanel, oppPanel, gamePanel;
 	private static JButton[][] myButton, oppButton;
-	boolean selectingShips = false;
-	private largeBattleship s = null;
+	public boolean selectingShips = false;
 	
 	board(int x, int y) throws Throwable{
 		boardX = x;
@@ -45,10 +43,10 @@ public class board extends JFrame implements ActionListener{
 		GridLayout panelLayout = new GridLayout(boardX, boardY);
 		gamePanel.setLayout(frameLayout);
 		myPanel.setLayout(panelLayout);
-		myPanel.setBackground(Color.blue); 
+		myPanel.setBackground(Color.BLUE); 
 		
 		oppPanel.setLayout(panelLayout);
-		oppPanel.setBackground(Color.blue); 
+		oppPanel.setBackground(Color.BLUE); 
 		
 		JButton exitButton = new JButton("Exit");
 		exitButton.addActionListener(this);		
@@ -66,54 +64,55 @@ public class board extends JFrame implements ActionListener{
 
 	public void actionPerformed(ActionEvent e) {
 		String msg = e.getActionCommand();
+		JButton b = (JButton) e.getSource();
 		if(msg.equalsIgnoreCase("Exit")){
 			try {
 				frame.dispose();
 			} catch (Throwable e1) {}
 		}else if(selectingShips==true){
-			if (msg.startsWith("m")){
-				Gui.println("Button: "+msg);
-				JButton b = (JButton) e.getSource();
+			if (b.getName().startsWith("Me")){
+//				Gui.println("Button: "+b.getName());
 				b.setBackground(Color.YELLOW);
-				s = new largeBattleship(getButtonX(b),getButtonY(b));
+				String[] shipCoor = b.getName().trim().split(",");
+				int x = Integer.parseInt(shipCoor[1]);
+				int y = Integer.parseInt(shipCoor[2]);
+				largeBattleship ship = new largeBattleship(x,y);
 				
-				switch (Gui.gameType){
+				switch (Gui.getGameType()){
 				case 1:
-					ComvCom.getFleet().add(s);
+					if (ComvCom.searchFleet(ship)==false){
+						ComvCom.getFleet().add(ship);
 					Gui.println(ComvCom.getFleet().size());
+					}
 					break;
 				case 2:
-					PvCom.getFleet().add(s);
+					if (PvCom.searchFleet(ship)==false){
+						PvCom.getFleet().add(ship);
 					Gui.println(PvCom.getFleet().size());
+					}
 					break;
 				case 3:
-					PvP.fleet.add(s);
-					Gui.println(PvP.fleet.size());
+					if (PvP.searchFleet(ship)==false){
+						PvP.getFleet().add(ship);
+					Gui.println(PvP.getFleet().size());
+					}
 					break;
 				}
 			}
 		}
+		else if(PvCom.isBattling() == true){
+			String[] messageCoor = b.getName().trim().split(",");
+			String s = messageCoor[0];
+			int x = Integer.parseInt(messageCoor[1]);
+			int y = Integer.parseInt(messageCoor[2]);
+			Torpedo coor = new Torpedo(s,y,x);
+			PvCom.getMyShotList().add(coor);
+			PvCom.checkOppFleet(coor);
+			enableOppBoard(false);
+			PvCom.setShooting(false);
+		}
 	}
 
-private int getButtonY(JButton b) {
-		String msg = b.getActionCommand();
-		ArrayList<Object> info = new ArrayList<Object>();
-		String[] tokens = msg.trim().split(",");
-		for (String t : tokens)
-			info.add(t);
-		int x = Integer.parseInt(tokens[1]);
-		return x;
-	}
-
-private int getButtonX(JButton b) {
-		String msg = b.getActionCommand();
-		ArrayList<Object> info = new ArrayList<Object>();
-		String[] tokens = msg.trim().split(",");
-		for (String t : tokens)
-			info.add(t);
-		int y = Integer.parseInt(tokens[2]);
-		return y;
-	}
 
 public static JFrame getFrame() {
 		return frame;
@@ -161,8 +160,9 @@ public static JFrame getFrame() {
 		 for (int row = 0; row < boardY; row++){
 	        	for (int col = 0; col < boardX; col++){
 	        		// creates a new button. 
-	        		getMyButton()[col][row] = new JButton("Me,"+row+","+col);
-	        		getMyButton()[col][row].setBackground(Color.cyan);
+	        		getMyButton()[col][row] = new JButton("");
+	        		getMyButton()[col][row].setName("Me,"+row+","+col);
+	        		getMyButton()[col][row].setBackground(Color.CYAN);
 	        		getMyButton()[col][row].setBorderPainted(false);
 	                getMyButton()[col][row].setLocation(col, row);
 	                getMyButton()[col][row].addActionListener(this);
@@ -177,8 +177,9 @@ public static JFrame getFrame() {
 		 for (int row = 0; row < boardY; row++){
 	        	for (int col = 0; col < boardX; col++){
 	        		// creates a new button. 
-	        		getOppButton()[col][row] = new JButton("Opp,"+row+","+col);
-	        		getOppButton()[col][row].setBackground(Color.cyan);
+	        		getOppButton()[col][row] = new JButton("");
+	        		getOppButton()[col][row].setName("Opp,"+row+","+col);
+	        		getOppButton()[col][row].setBackground(Color.CYAN);
 	        		getOppButton()[col][row].setBorderPainted(false);
 	                getOppButton()[col][row].setLocation(col, row);
 	                getOppButton()[col][row].addActionListener(this);
@@ -198,8 +199,8 @@ public static JFrame getFrame() {
 	public int getBoundY() {	return (int)frame.getLocation().getY();	}
 
 	public void enableMyBoard(Boolean b) {
-		for (int row = 0; row < boardY; row++){
-        	for (int col = 0; col < boardX; col++){
+		for (int row = 0; row < boardX; row++){
+        	for (int col = 0; col < boardY; col++){
         		// enable buttons. 
         		getMyButton()[col][row].setEnabled(b);
         	}
@@ -207,44 +208,18 @@ public static JFrame getFrame() {
 	}
 	
 	public void enableOppBoard(Boolean b) {
-		for (int row = 0; row < boardY; row++){
-        	for (int col = 0; col < boardX; col++){
-        		// enable buttons. 
-        		getOppButton()[col][row].setEnabled(b);
+		for (int row = 0; row < boardX; row++){
+        	for (int col = 0; col < boardY; col++){
+        		// enable or disable buttons.
+        		if(b == true){
+        			if (getOppButton()[col][row].getBackground() == (Color.CYAN)){
+        				getOppButton()[col][row].setEnabled(true);
+        			}
+        		}
+        		else{
+        			getOppButton()[col][row].setEnabled(false);
+        		}
         	}
 		}
 	}
-	
-	public void disableMyButton(JButton button) {
-		getOppButton()[button.getX()][button.getY()].setEnabled(false);
-		System.out.print(button.getActionCommand());
-	}
-	
-	public void disableOppButton(JButton button) {
-		getOppButton()[button.getX()][button.getY()].setEnabled(false);
-	}
-	
-	public JButton convert(String msg) {
-		ArrayList<Object> info = new ArrayList<Object>();
-		String[] tokens = msg.trim().split(",");
-		for (String t : tokens)
-			info.add(t);
-		String s = tokens[0];
-		int x = Integer.parseInt(tokens[1]);
-		int y = Integer.parseInt(tokens[2]);
-		if (s.equalsIgnoreCase("Me")){
-			JButton btn = getMyButton()[y][x];
-			return btn;
-		}
-		else{
-			JButton btn = getOppButton()[y][x];
-			return btn;		
-		}
-	}
-
-	public void setBoard(int x, int y) {
-		boardX = x;
-		boardY = y;
-	}
-
 }
