@@ -28,19 +28,32 @@ public class Connection {
 	Connection(String i, int p) throws Throwable, Throwable{
 		ip = i;
 		port = p;
-		run();
 	}
 	
-	private void run() throws UnknownHostException, IOException{
+	public void run(){
 		if (ip == null){
 			// if server then
-			providerSocket = new ServerSocket(port);
+			try {
+				providerSocket = new ServerSocket(port);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			Gui.println("Waiting for a connection...");
-			connection = providerSocket.accept();
+			try {
+				connection = providerSocket.accept();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		else{
 			// if client then
-			connection = new Socket(ip,port);
+			try {
+				connection = new Socket(ip,port);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			}
 		
 		// When Connected
@@ -52,9 +65,22 @@ public class Connection {
 		h.addConnection(opponent);
 		//Input/Output streams
 		
-		in = new ObjectInputStream(connection.getInputStream());	
-		out = new ObjectOutputStream(connection.getOutputStream());
-		out.flush();
+		try {
+			in = new ObjectInputStream(connection.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+		try {
+			out = new ObjectOutputStream(connection.getOutputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		try {
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// Send a message to opponent

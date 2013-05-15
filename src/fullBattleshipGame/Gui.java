@@ -1,5 +1,6 @@
 package fullBattleshipGame;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	private static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
 	private int hostOrClient = 0; // if 1 then host , if 2 then client
 	private boolean start = false, isPvCom = false;
+	private final int guiX = 380, guiY = 250;
+	private static Gui thisWindow;
 	
 	Gui() throws Throwable{
 		super("Dhruval's Battleship Game");
@@ -42,17 +45,20 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		hostScreen();	
 		PvComStartScreen();
 		messageBox();		
+		setLayout(new BorderLayout());
+		guiPanel = new JPanel();
+		// The first menu the user sees
+		guiPanel.add(mainPanel);
+		add(guiPanel, BorderLayout.NORTH);
+		add(messagePanel, BorderLayout.CENTER);
+		setVisible(true);
+		setSize(guiX,guiY);
+		setThisWindow(this);
+		addWindowListener(this);
 		// set Exit solution
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		addWindowListener(this);
-		setSize(475,300);
-		setLayout(new FlowLayout());
-		guiPanel = new JPanel();
-		guiPanel.setLayout(new FlowLayout());
-		guiPanel.add(mainPanel);
-		add(guiPanel);
-		add(messagePanel);
-		setVisible(true);		
+		
+		// Start running once the Gui has been created.
 		play();
 	}
 	
@@ -102,7 +108,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		pvp.addActionListener(this);	
 		menu.addActionListener(this);
 		
-//		pvc.setEnabled(false); // Under Construction
+		com.setEnabled(true);
+		pvc.setEnabled(true); 
 		pvp.setEnabled(false); // Under Construction
 		
 		gamePanel.add(com);
@@ -190,23 +197,25 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	
 	private void messageBox(){
 		messagePanel = new JPanel();
-//		messagePanel.setLayout(new FlowLayout());
-		
+		messagePanel.setLayout(new BorderLayout());
+		messagePanel.setBorder(new TitledBorder(new EtchedBorder(), "Headquarters"));
 		console = new JTextArea("Welcome to Dhruval's Battleship Game\n");
-		console.setBorder(new TitledBorder(new EtchedBorder(), "Headquarters"));
-	    console.setEditable(false);
-		JScrollPane scroll = new JScrollPane(console);
-		messagePanel.add(scroll);
+		console.setEditable(false);
+		messagePanel.add(new JScrollPane(console));
 	}
 	
-	public void print(Object message){
+	public static void print(Object message){
 		console.append(message.toString());
 		console.setCaretPosition(console.getText().length() - 1);
+		getThisWindow().setAlwaysOnTop(true);
+		getThisWindow().setAlwaysOnTop(false);		
 	}
 	
 	public static void println(Object message){
 		console.append(message.toString()+"\n");
 		console.setCaretPosition(console.getText().length() - 1);
+		getThisWindow().setAlwaysOnTop(true);
+		getThisWindow().setAlwaysOnTop(false);	
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -220,7 +229,6 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			guiPanel.add(gamePanel);
 		}
 		else if(msg.equalsIgnoreCase("Exit")){
-			guiPanel.removeAll();
 			System.exit(0);
 		}
 		else if (msg.equalsIgnoreCase("Com vs. Com")){
@@ -369,5 +377,13 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 
 	public static void setGameType(int gameType) {
 		Gui.gameType = gameType;
+	}
+
+	public static Gui getThisWindow() {
+		return thisWindow;
+	}
+
+	public void setThisWindow(Gui thisWindow) {
+		Gui.thisWindow = thisWindow;
 	}
 }

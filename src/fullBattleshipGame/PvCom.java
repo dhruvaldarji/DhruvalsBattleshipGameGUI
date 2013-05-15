@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class PvCom {
+public class PvCom implements Runnable{
 	
 	// My game board
 	private static board ocean;
@@ -38,15 +38,17 @@ public class PvCom {
 		}
 	
 	// Run the game
-	public void run() throws Throwable {
+	public void run() {
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
 		shipAmt = (((boardX+boardY)/2));
 		chooseShips(); // User selects ships
 		createShipsRand(); // Computer randomly generates ships
 				
-		battle();
-		}
+		try {
+			battle();
+		} catch (Throwable e) {	e.printStackTrace();	}
+	}
 	
 	//Close the game
 	private void close() throws Throwable {
@@ -132,7 +134,7 @@ public class PvCom {
 					theShip = new ship(x+i,y, theShip.getSize());
 					// search oppFleet for ship matching theShip
 					if (searchOppFleet(theShip)==false && getOppFleet().size()<shipAmt){
-						ocean.getOppButton()[x+i][y].setBackground(Color.YELLOW);
+//						ocean.getOppButton()[x+i][y].setBackground(Color.YELLOW);
 						getOppFleet().add(theShip);
 						}
 					}
@@ -145,7 +147,7 @@ public class PvCom {
 					// search oppFleet for ship matching theShip
 					if (searchOppFleet(theShip)==false&&getOppFleet().size()<shipAmt){
 						getOppFleet().add(theShip);
-						ocean.getOppButton()[x][y+i].setBackground(Color.YELLOW);
+//						ocean.getOppButton()[x][y+i].setBackground(Color.YELLOW);
 					}
 				}
 			}
@@ -225,11 +227,10 @@ public class PvCom {
 		if (ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].getBackground()==Color.YELLOW){
 			// Ships is in fleet, change color to red
 			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.RED);
-			removeFromFleet(oppCoor);
-		}
+			removeFromFleet(oppCoor);		}
 		else {	
 			// Shot missed, change color to blue
-			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);	
+			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);
 		}
 	}
 	
@@ -241,13 +242,11 @@ public class PvCom {
 				getOppFleet().remove(i);
 				// Ships is in fleet, change color to red
 				ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);
-				Gui.println(coor.toString()+" is a HIT");
 				return;
 			}	
 		}
 		// Shot missed, change color to blue
 		ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.BLUE);
-		Gui.println(coor.toString()+" is a MISS");
 	}
 
 	// Remove the ship with matching coordinates from the fleet.

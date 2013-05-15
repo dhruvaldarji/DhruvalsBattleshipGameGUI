@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ComvCom {
+public class ComvCom implements Runnable{
 	
 	// My connection
 	private static Connection socket;
@@ -57,7 +57,7 @@ public class ComvCom {
 			hostClient = 1;
 			socket = new Connection(h, p);
 		}
-		
+		socket.run();
 		// give socket time to connect and board time to show up.
 		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
 				
@@ -71,14 +71,32 @@ public class ComvCom {
 		// Determine winner
 		battling = false;
 		if(myStatus.equalsIgnoreCase("L")){	
-			Gui.println("You lost, all of your ships have been sunk!");
-			Gui.println("You lost in "+oppShotList.size()+" shots.");
-			Gui.println("You shot "+myShotList.size()+" shots.");
+			Gui.println("You lost, all of your ships have been sunk!\n"+
+						"You lost in "+oppShotList.size()+" shots.\n"+
+						"You shot "+myShotList.size()+" shots.");
+			ocean.getMyPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getMyPanel().setBackground(Color.PINK);
 		}
 		else if(oppStatus.equalsIgnoreCase("L")){	
-			Gui.println("You Win, all of the opponents ships have been sunk!");
-			Gui.println("You took "+myShotList.size()+" shots.");
-			Gui.println("Opponent shot "+oppShotList.size()+" shots.");
+			Gui.println("You Win, all of the opponents ships have been sunk!\n"+
+						"You took "+myShotList.size()+" shots.\n"+
+						"Opponent shot "+oppShotList.size()+" shots.");
+			ocean.getOppPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.RED);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.BLUE);
+			Thread.sleep(250);
+			ocean.getOppPanel().setBackground(Color.PINK);
 
 		}
 		else if(myShotList.size()==10000){	Gui.println("You lost, you shot 10,000 times!");	}
@@ -150,6 +168,7 @@ public class ComvCom {
 		do{
 			shoot();
 			if(myStatus.equalsIgnoreCase("L")||myShotList.size()==10000){	close();	}
+			Thread.sleep(10);
 ////////////////////////////// ~ ~ ~ ~ ~ Player : Opponent Separation ~ ~ ~ ~ ~ //////////////////////////////
 			getShotAt();
 			if(oppStatus.equalsIgnoreCase("L")||oppShotList.size()==10000){	close();	}
@@ -429,6 +448,15 @@ public class ComvCom {
 
 	public void setFleet(ArrayList<ship> fleet) {
 		ComvCom.fleet = fleet;
+	}
+
+	@Override
+	public void run() {
+		try {
+			run("localhost", 13000);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
