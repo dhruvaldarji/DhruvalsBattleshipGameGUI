@@ -30,7 +30,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 	private static int gameType = 0; // if 1 then ComvCom, if 2 then PvCom, if 3 then pvp
 	private int hostOrClient = 0; // if 1 then host , if 2 then client
 	private boolean start = false, isPvCom = false;
-	private final int guiX = 380, guiY = 250;
+	private final int guiX = 425, guiY = 250;
 	private static Gui thisWindow;
 	
 	Gui() throws Throwable{
@@ -308,7 +308,7 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 			if (hostOrClient == 1){
 				inHostGame();
 			}
-			if (hostOrClient == 2){
+			else if (hostOrClient == 2){
 				inClientGame();
 			}
 			
@@ -319,8 +319,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		switch (getGameType()){
 		case 1:
 			start = false;
-			ComvCom g1 = new ComvCom();
-			g1.run(null, p);
+			ComvCom g1 = new ComvCom(p);
+			g1.run();
 			break;
 		case 2:
 			isPvCom = false;
@@ -340,8 +340,8 @@ public class Gui extends JFrame implements ActionListener, WindowListener{
 		switch (getGameType()){
 		case 1:
 			start = false;
-			ComvCom g1 = new ComvCom();
-			g1.run(s, p);
+			ComvCom g1 = new ComvCom(s,p);
+			g1.run();
 			break;
 		case 2:
 			isPvCom = false;

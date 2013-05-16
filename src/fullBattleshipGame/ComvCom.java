@@ -8,11 +8,11 @@ import java.util.Random;
 public class ComvCom implements Runnable{
 	
 	// My connection
-	private static Connection socket;
-	private int hostClient = 0; // host == 0 or client == 1
+	private Connection socket;
+	private int hostClient = 0; // host == 1 or client == 2
 	
 	// My game board
-	private static board ocean;
+	private board ocean;
 	
 	// My various ArrayLists that track ships and shots
 	private static ArrayList<ship> fleet = new ArrayList<ship>(); // -----ArrayList
@@ -25,46 +25,44 @@ public class ComvCom implements Runnable{
 	private boolean shipFound = false, right = false, down = false, left = false, up = false, battling=false;
 	private int timesShotSpecially = 0, hits = 0, direction = 1; 
 	
-	public ComvCom() throws Throwable{
+	// Start a hosted game
+	public ComvCom(int p) throws Throwable{
+		this.hostClient = 1;
+		this.socket = new Connection(p);
+		init();
+	}
+	// Start a client game
+	public ComvCom(String h, int p) throws Throwable{
+		this.hostClient = 2;
+		this.socket = new Connection(h, p);
 		init();
 	}
 		
 	// Initialize the game
 	private void init() throws Throwable {
 		// Make a new game board with 100x100 buttons
-		ocean = new board(100,100);
+		this.ocean = new board(100,100);
 		// Empty my shot list
 		myShotList.clear();
 		// Empty opponents shot list
 		oppShotList.clear();
 		// Game is ready to play, show the board
-		ocean.setVisible(true);
-		// Print my game information ip and port
+		this.ocean.setVisible(true);
 		}
 	
-	// Run the game
-	public void run(String h, int p) throws Throwable {
-		
+	// Run the game client mode
+	public void run() {
 //		chooseShips(); // User selects ships
 		createShipsRand(); // Ships randomly generated
+		Gui.println("Ships Set.");
 		
-		// Host a game or connect to a game
-		if (h == null){ // I'm hosting
-			hostClient = 0;
-			socket = new Connection(null, p);
-		}
-		else{ // I'm a client
-			hostClient = 1;
-			socket = new Connection(h, p);
-		}
-		socket.run();
-		// give socket time to connect and board time to show up.
-		try {	Thread.sleep(1000);	}	catch (Throwable e) {}
-				
-		battle();
-//		Gui.println("opp: "+myShotList.toString()); // view opponents shotlist
-//		Gui.println("me: "+oppShotList.toString()); // view my shotlist
-		}
+		// Connect to the Opponent
+		try {	this.socket.run();	Thread.sleep(1000);	} catch (Throwable e) {	e.printStackTrace();	}
+			
+		// Enter the battle stage
+		Gui.println("Entering battle mode.");
+		try {	battle();	} catch (Throwable e){}
+	}
 	
 	//Close the game
 	private void close() throws Throwable {
@@ -74,29 +72,29 @@ public class ComvCom implements Runnable{
 			Gui.println("You lost, all of your ships have been sunk!\n"+
 						"You lost in "+oppShotList.size()+" shots.\n"+
 						"You shot "+myShotList.size()+" shots.");
-			ocean.getMyPanel().setBackground(Color.RED);
+			this.ocean.getMyPanel().setBackground(Color.RED);
 			Thread.sleep(250);
-			ocean.getMyPanel().setBackground(Color.BLUE);
+			this.ocean.getMyPanel().setBackground(Color.BLUE);
 			Thread.sleep(250);
-			ocean.getMyPanel().setBackground(Color.RED);
+			this.ocean.getMyPanel().setBackground(Color.RED);
 			Thread.sleep(250);
-			ocean.getMyPanel().setBackground(Color.BLUE);
+			this.ocean.getMyPanel().setBackground(Color.BLUE);
 			Thread.sleep(250);
-			ocean.getMyPanel().setBackground(Color.PINK);
+			this.ocean.getMyPanel().setBackground(Color.PINK);
 		}
 		else if(oppStatus.equalsIgnoreCase("L")){	
 			Gui.println("You Win, all of the opponents ships have been sunk!\n"+
 						"You took "+myShotList.size()+" shots.\n"+
 						"Opponent shot "+oppShotList.size()+" shots.");
-			ocean.getOppPanel().setBackground(Color.RED);
+			this.ocean.getOppPanel().setBackground(Color.RED);
 			Thread.sleep(250);
-			ocean.getOppPanel().setBackground(Color.BLUE);
+			this.ocean.getOppPanel().setBackground(Color.BLUE);
 			Thread.sleep(250);
-			ocean.getOppPanel().setBackground(Color.RED);
+			this.ocean.getOppPanel().setBackground(Color.RED);
 			Thread.sleep(250);
-			ocean.getOppPanel().setBackground(Color.BLUE);
+			this.ocean.getOppPanel().setBackground(Color.BLUE);
 			Thread.sleep(250);
-			ocean.getOppPanel().setBackground(Color.PINK);
+			this.ocean.getOppPanel().setBackground(Color.PINK);
 
 		}
 		else if(myShotList.size()==10000){	Gui.println("You lost, you shot 10,000 times!");	}
@@ -104,7 +102,7 @@ public class ComvCom implements Runnable{
 		else Gui.println("Could not determine winner.");
 		
 		// Close the socket connection
-		try {	socket.close();	Thread.sleep(3000);	}	catch (Throwable e) {}
+		try {	this.socket.close();	Thread.sleep(3000);	}	catch (Throwable e) {}
 	}
 	
 	// Choose where to put ships
@@ -112,14 +110,14 @@ public class ComvCom implements Runnable{
 	private void chooseShips() {
 		Gui.println("Choose 24 ships");
 		do{
-			ocean.enableMyBoard(true);
-			ocean.selectingShips = true;
+			this.ocean.enableMyBoard(true);
+			this.ocean.selectingShips = true;
 		}while(getFleet().size()<24);
-		ocean.setVisible(false);
-		ocean.enableMyBoard(false);
-		ocean.selectingShips = false;
+		this.ocean.setVisible(false);
+		this.ocean.enableMyBoard(false);
+		this.ocean.selectingShips = false;
 		Gui.println("Done choosing Ships");
-		ocean.setVisible(true);
+		this.ocean.setVisible(true);
 	}
 	
 	// Computer chooses ships randomly
@@ -140,7 +138,7 @@ public class ComvCom implements Runnable{
 					// search serverFleet for ship matching newShip
 					if (searchFleet(hShip)==false){
 						getFleet().add(hShip);
-						ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.YELLOW);
+						this.ocean.getMyButton()[hShip.getX()][hShip.getY()].setBackground(Color.YELLOW);
 						}
 					}
 				}
@@ -151,7 +149,7 @@ public class ComvCom implements Runnable{
 					vShip = new largeBattleship(x,y+s);
 					// search serverFleet for ship matching newShip
 					if (searchFleet(vShip)==false){
-						ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.YELLOW);
+						this.ocean.getMyButton()[vShip.getX()][vShip.getY()].setBackground(Color.YELLOW);
 						getFleet().add(vShip);
 					}
 				}
@@ -164,7 +162,13 @@ public class ComvCom implements Runnable{
 	private void battle() throws Throwable {	
 		battling = true;
 		// if host then listen
-		if (hostClient == 0){	getShotAt();	}
+		if (this.hostClient == 1){	
+			Gui.println("Waiting for incoming torpedos.");
+			getShotAt();
+		}
+		else{
+			Gui.println("Shooting First.");
+		}
 		do{
 			shoot();
 			if(myStatus.equalsIgnoreCase("L")||myShotList.size()==10000){	close();	}
@@ -182,7 +186,7 @@ public class ComvCom implements Runnable{
 		coor = findNextShot(coor, oppStatus);
 		// Check if I have hit this shot yet, if not then send. If i have, then findNextShot
 		String currentStatus = checkIfIShot(coor); // Status of the coordinate I'm trying to shoot.
-		while(!currentStatus.equalsIgnoreCase("N")){
+		while(!currentStatus.equalsIgnoreCase("N")){ // H = coordinate shot, M = coordinate miss, N = coordinate not shot
 			coor = findNextShot(coor,currentStatus);
 			currentStatus = checkIfIShot(coor);
 		}
@@ -190,12 +194,12 @@ public class ComvCom implements Runnable{
 		coor.setStatus(myStatus);
 		myShotList.add(coor);
 		// Send coordinate 
-		socket.sendMessage(coor.toString());
+		this.socket.sendMessage(coor.toString());
 	}
 	
 	private void getShotAt() throws ClassNotFoundException, IOException, InterruptedException {
 		// Get the opponents coordinates
-		oppCoor = socket.getMessage(); 
+		oppCoor = this.socket.getMessage(); 
 		// Add opponents shot to opponent's shot list. 
 		oppShotList.add(oppCoor);
 		oppStatus = oppCoor.getStatus();
@@ -225,26 +229,26 @@ public class ComvCom implements Runnable{
 	private String checkFleet(Torpedo oppCoor){
 	
 	// Check if coordinate is a ship
-		if (ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].getBackground()==Color.YELLOW){
+		if (this.ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].getBackground()==Color.YELLOW){
 			// Ships is in fleet, change color to red
-			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.RED);
+			this.ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.RED);
 			removeFromFleet(oppCoor.getX(),oppCoor.getY());
 			return"H";
 		}
 		else {	
 			// Shot missed, change color to blue
-			ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);	
+			this.ocean.getMyButton()[oppCoor.getX()][oppCoor.getY()].setBackground(Color.BLUE);	
 		}
 		return "M";
 	}
 	
 	// Remove the ship with matching coordinates from the fleet.
 	private void removeFromFleet(int x, int y) {
-		for (int i = 0; i<fleet.size(); i++){
-			if (fleet.get(i).getX() == x
+		for (int i = 0; i<getFleet().size(); i++){
+			if (getFleet().get(i).getX() == x
 					&& 
-					fleet.get(i).getY() == y){
-				fleet.remove(i);
+					getFleet().get(i).getY() == y){
+				getFleet().remove(i);
 			}
 		}
 	}
@@ -252,10 +256,10 @@ public class ComvCom implements Runnable{
 	// Check if the coordinate has already been shot by me and return value
 		private String checkIfIShot(Torpedo coor){
 			// Check if coordinate has already been shot
-			if(ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.BLUE){
+			if(this.ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.BLUE){
 				return "M"; // Coordinate is a miss
 			}
-			else if(ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.RED){
+			else if(this.ocean.getOppButton()[coor.getX()][coor.getY()].getBackground()==Color.RED){
 				return "H"; // Coordinate is a hit
 			}
 			return "N"; // Coordinate not shot
@@ -264,7 +268,7 @@ public class ComvCom implements Runnable{
 	// Check if the coordinate has already been shot by the opponent
 	private boolean checkIfOppShot(Torpedo coor){
 		// Check if coordinate has already been shot
-		if(ocean.getMyButton()[coor.getX()][coor.getY()].getBackground()==Color.CYAN){
+		if(this.ocean.getMyButton()[coor.getX()][coor.getY()].getBackground()==Color.CYAN){
 			return false; // Coordinate already shot
 			}
 		return true; // Coordinate not shot
@@ -272,9 +276,9 @@ public class ComvCom implements Runnable{
 	
 	// Update opponent's board.
 	private void updateOppBoard(String oppStatus, Torpedo coor) throws InterruptedException {
-		if (oppStatus.equalsIgnoreCase("H")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);	}
-		else if (oppStatus.equalsIgnoreCase("M")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.BLUE);	}
-		else if (oppStatus.equalsIgnoreCase("L")){	ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);	}
+		if (oppStatus.equalsIgnoreCase("H")){	this.ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);	}
+		else if (oppStatus.equalsIgnoreCase("M")){	this.ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.BLUE);	}
+		else if (oppStatus.equalsIgnoreCase("L")){	this.ocean.getOppButton()[coor.getX()][coor.getY()].setBackground(Color.RED);	}
 	}
 
 	// Find the next place to shoot
@@ -445,18 +449,7 @@ public class ComvCom implements Runnable{
 		return fleet;
 	}
 	
-
 	public void setFleet(ArrayList<ship> fleet) {
 		ComvCom.fleet = fleet;
 	}
-
-	@Override
-	public void run() {
-		try {
-			run("localhost", 13000);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
-	
 }

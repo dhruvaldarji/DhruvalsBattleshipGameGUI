@@ -10,90 +10,68 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Connection {
 	private ServerSocket		providerSocket;
 	private Socket				connection;
-	private static ObjectOutputStream	out;
-	private static ObjectInputStream	in;
+	private ObjectOutputStream	out;
+	private ObjectInputStream	in;
 	private String				message;
 	private boolean 			connected = false;
 	private String 				ip = "localhost";
 	private int 				port = 13000;
 	private String 				opponent = "";
 	public history h = new history();
+	private int hostClient = 0; // host == 1 or client == 2
 
-        // Constructor
+	// Host Constructor
+	Connection(int p) throws Throwable, Throwable{
+		port = p;
+		hostClient = 1;
+	}
+	// Client Constructor
 	Connection(String i, int p) throws Throwable, Throwable{
 		ip = i;
 		port = p;
+		hostClient = 2;
 	}
 	
-	public void run(){
-		if (ip == null){
+	public void run() throws Exception{
+		connected = false;
+		if (hostClient == 1){
 			// if server then
-			try {
-				providerSocket = new ServerSocket(port);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			providerSocket = new ServerSocket(port);
 			Gui.println("Waiting for a connection...");
-			try {
-				connection = providerSocket.accept();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			this.connection = providerSocket.accept();
+			
 		}
-		else{
+		if (hostClient == 2){
 			// if client then
-			try {
-				connection = new Socket(ip,port);
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			}
+			this.connection = new Socket(ip,port);
+		}
+		//Input/Output streams
+		this.in = new ObjectInputStream(this.connection.getInputStream());
+		this.out = new ObjectOutputStream(this.connection.getOutputStream());
+		this.out.flush();
 		
 		// When Connected
-		opponent = connection.getInetAddress()+", "+connection.getPort();
-		
-		Gui.println("Connected to "+opponent);
+		Gui.println("Connected to "+getOppConnectionInfo());
+		h.addConnection(opponent);
 		
 		setConnected(true);
-		h.addConnection(opponent);
-		//Input/Output streams
-		
-		try {
-			in = new ObjectInputStream(connection.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}	
-		try {
-			out = new ObjectOutputStream(connection.getOutputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-		try {
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	// Send a message to opponent
 	void sendMessage(String msg) throws IOException{
-		out.writeObject(msg);
-		out.flush();
+		this.out.writeObject(msg);
+		this.out.flush();
 		System.out.println("Me> "+msg.toString());
 	}
 
 	// Get a message from the opponent
 	public Torpedo getMessage() throws ClassNotFoundException, IOException{
 		Torpedo coor = new Torpedo();
-		message = (String)in.readObject();
+		message = (String)this.in.readObject();
 		coor = convert(message);
 		if (coor.getStatus().equalsIgnoreCase("H")){	System.out.println("Opp> "+coor.toString()+"----------HIT!----------");	}
 		else System.out.println("Opp> "+coor.toString());
@@ -115,11 +93,11 @@ public class Connection {
 	}
 	
 	public String getMyConnectionInfo(){
-		return connection.getLocalAddress()+", "+connection.getLocalPort();
+		return this.connection.getLocalAddress()+", "+this.connection.getLocalPort();
 	}
 	
 	public String getOppConnectionInfo(){
-		return connection.getInetAddress()+", "+connection.getPort();
+		return this.connection.getInetAddress()+", "+this.connection.getPort();
 	}
 	
 	public boolean isConnected() {
@@ -132,8 +110,8 @@ public class Connection {
 
 	void close() throws Throwable{
 		setConnected(false);
-		in.close();
-		out.close();
-		connection.close();
+		this.in.close();
+		this.out.close();
+		this.connection.close();
 	}
 }
